@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    
+    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\""
+
   },
   "keywords": [],
   "author": "",
@@ -18,6 +21,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "concurrently": "^10.0.0",
     "turbo": "^2.9.14",
     "typescript": "^6.0.3"
   }
