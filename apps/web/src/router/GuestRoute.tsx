@@ -1,0 +1,16 @@
+import { Navigate, Outlet } from 'react-router-dom'
+import { useAuthStore } from '@/stores/auth.store'
+
+export function GuestRoute() {
+  const { isAuthenticated, isLoading } = useAuthStore()
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/projects" replace />
+  }
+
+  return <Outlet />
+}
