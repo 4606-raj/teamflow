@@ -15,4 +15,9 @@ export class AppController {
     this.logger.log('Fetching hello message');
     return this.appService.getHello();
   }
+
+  @Get('health')
+  getHealth(): Promise<{ database: string }> {
+    return this.appService.getHealth();
+  }
 }

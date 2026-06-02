@@ -5,8 +5,9 @@ import { AppService } from './app.service';
 import appConfig from '@/config/app.config';
 import databaseConfig from '@/config/database.config';
 import jwtConfig from '@/config/jwt.config';
-import { LoggerModule } from '@/common/logger/logger.module';
 import { envValidationSchema } from '@/config/env.validation'
+import { LoggerModule } from '@/common/logger/logger.module';
+import { PrismaModule } from '@/common/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { envValidationSchema } from '@/config/env.validation'
       ],
     }),
     LoggerModule,
+    PrismaModule,
   ],
 
   controllers: [AppController],
