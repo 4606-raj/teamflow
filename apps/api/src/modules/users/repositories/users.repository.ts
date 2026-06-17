@@ -34,7 +34,7 @@ export class UsersRepository {
         return user;
     }
 
-    updateRefreshToken(userId: string, refreshTokenHash: string) {
+    updateRefreshToken(userId: string, refreshTokenHash: string | null) {
         return this.prisma.user.update({
             where: { id: userId },
             data: { refreshTokenHash },

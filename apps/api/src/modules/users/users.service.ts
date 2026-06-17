@@ -32,9 +32,9 @@ export class UsersService {
         return this.usersRepository.findById(id);
     }
 
-    async updateRefreshToken(userId: string, refreshToken: string) {
+    async updateRefreshToken(userId: string, refreshToken: string | null) {
         // hash the refresh token before storing it in the DB
-        const hash = await bcrypt.hash(refreshToken, 10);
+        const hash = refreshToken !== null? await bcrypt.hash(refreshToken, 10): null;
         
         await this.usersRepository.updateRefreshToken(userId, hash);
     }

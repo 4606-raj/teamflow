@@ -44,6 +44,12 @@ export class AuthService {
 
         return { user: new UserEntity(user), tokens };
     }
+
+    async logout(userId: string) {
+        await this.usersService.updateRefreshToken(userId, null);
+
+        return { message: 'Logged out successfully' };
+    }
     
     async getMe(userId: string) {
         const user = await this.usersService.findById(userId);

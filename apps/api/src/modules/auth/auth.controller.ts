@@ -23,6 +23,12 @@ export class AuthController {
         return this.authService.login(data.email, data.password);
     }
 
+    @Post('logout')
+    @UseGuards(JwtAuthGuard)
+    logout(@Req() req: any) {
+        return this.authService.logout(req.user.userId);
+    }
+
     @UseGuards(JwtAuthGuard)
     @Get('me')
     getMe(@Req() req: any) {
