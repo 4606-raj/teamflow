@@ -28,6 +28,10 @@ export class UsersService {
         return this.usersRepository.findByEmail(email);
     }
 
+    async findById(id: string) {
+        return this.usersRepository.findById(id);
+    }
+
     async updateRefreshToken(userId: string, refreshToken: string) {
         // hash the refresh token before storing it in the DB
         const hash = await bcrypt.hash(refreshToken, 10);

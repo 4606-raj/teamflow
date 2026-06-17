@@ -44,6 +44,15 @@ export class AuthService {
 
         return { user: new UserEntity(user), tokens };
     }
+    
+    async getMe(userId: string) {
+        const user = await this.usersService.findById(userId);
+        
+        if(!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        return new UserEntity(user);
+    }
 
     // Generates access and refresh token
     async generateTokens(userId: string, email: string) {
@@ -53,5 +62,26 @@ export class AuthService {
         ])
 
         return { accessToken, refreshToken};
+    }
+
+    async refreshTokens(userId: string, refreshToken: string) {
+        const user = await this.usersService.findById(userId);
+
+        if(!user || !user.refreshTokenHash) {
+            throw new UnauthorizedException('Access Denied');
+        }
+
+        const refreshMatches = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+
+        if(!refreshMatches) {
+            throw new UnauthorizedException('Invalid refresh token')
+        }
+
+        const tokens = await this.generateTokens(user.id, user.email);
+
+        // update hashed refresh token in DB
+        await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+
+        return tokens;
     }
 }
