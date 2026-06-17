@@ -1,9 +1,10 @@
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import "dotenv/config";
 
 export const adapter = new PrismaMariaDb({
-  host: 'localhost',
-  port: 3306,
-  user: 'db-user',
-  password: 'password',
-  database: 'team_flow',
+  host: process.env["DB_HOST"],
+  port: Number(process.env["DB_PORT"]),
+  user: process.env["DB_USER"],
+  password: process.env["DB_PASSWORD"],
+  database: process.env["DB_NAME"],
 });

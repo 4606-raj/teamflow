@@ -8,6 +8,8 @@ import jwtConfig from '@/config/jwt.config';
 import { envValidationSchema } from '@/config/env.validation'
 import { LoggerModule } from '@/common/logger/logger.module';
 import { PrismaModule } from '@/common/prisma/prisma.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { PrismaModule } from '@/common/prisma/prisma.module';
     }),
     LoggerModule,
     PrismaModule,
+    AuthModule,
+    UsersModule,
   ],
 
   controllers: [AppController],
