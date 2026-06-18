@@ -10,6 +10,7 @@ import { LoggerModule } from '@/common/logger/logger.module';
 import { PrismaModule } from '@/common/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UsersModule } from './modules/users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    OrganizationsModule,
   ],
 
   controllers: [AppController],

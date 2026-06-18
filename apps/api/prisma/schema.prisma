@@ -12,6 +12,12 @@ datasource db {
   provider = "mysql"
 }
 
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -24,6 +30,45 @@ model User {
 
   refreshTokenHash  String?
 
+  memberships Membership[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+
+  memberships Membership[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("organizations")
+}
+
+model Membership {
+  id          String   @id @default(cuid())
+  userId      String
+  organizationId String
+
+  role        MembershipRole @default(MEMBER)
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, organizationId])
+
+  @@index([userId])
+  @@index([organizationId])
+  
+  @@map("memberships")
+
 }
