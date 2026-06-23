@@ -5,7 +5,9 @@ import { CreateOrganizationDto } from "../dto/create-organization.dto";
 
 @Injectable()
 export class OrganizationRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+    ) {}
 
     async createWithMembership(userId: string, data: CreateOrganizationDto) {
     
@@ -35,5 +37,40 @@ export class OrganizationRepository {
         });
         
         return response;
+    }
+
+    async getAllForUser(userId: string) {
+        const data = await this.prisma.organization.findMany({
+            where: {
+                memberships: {
+                some: {
+                    userId,
+                },
+                },
+            },
+            include: {
+                memberships: {
+                where: {
+                    userId,
+                },
+                select: {
+                    role: true,
+                },
+                },
+            },
+        });
+
+        return data;
+    }
+
+    async findMembership(userId: string, organizationId: string) {
+        return this.prisma.membership.findUnique({
+            where: {
+                userId_organizationId: {
+                    userId,
+                    organizationId
+                }
+            }
+        })
     }
 }

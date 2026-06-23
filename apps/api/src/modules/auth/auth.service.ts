@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MembershipRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -61,10 +62,18 @@ export class AuthService {
     }
 
     // Generates access and refresh token
-    async generateTokens(userId: string, email: string) {
+    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole) {
+
+        const payload = {
+            sub: userId,
+            email,
+            organizationId,
+            role,
+        }
+        
         const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync({ sub: userId, email }, { secret: this.configService.get('JWT_ACCESS_SECRET'), expiresIn: this.configService.get('JWT_ACCESS_EXPIRES_IN') }),
-            this.jwtService.signAsync({ sub: userId, email }, { secret: this.configService.get('JWT_REFRESH_SECRET'), expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN') })
+            this.jwtService.signAsync(payload, { secret: this.configService.get('JWT_ACCESS_SECRET'), expiresIn: this.configService.get('JWT_ACCESS_EXPIRES_IN') }),
+            this.jwtService.signAsync(payload, { secret: this.configService.get('JWT_REFRESH_SECRET'), expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN') })
         ])
 
         return { accessToken, refreshToken};

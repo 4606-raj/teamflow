@@ -17,7 +17,8 @@ export class PrismaService
     await this.$connect();
     this.logger.log('Prisma connected successfully');
   } catch (e) {
-      this.logger.error('Prisma connection failed', e);
+      this.logger.error('Prisma connection failed');
+      console.log(e)
     throw e;
   }
 }
