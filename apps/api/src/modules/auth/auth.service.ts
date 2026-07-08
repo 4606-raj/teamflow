@@ -6,6 +6,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MembershipRole } from '@prisma/client';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,14 +26,14 @@ export class AuthService {
         return { user, tokens };
     }
 
-    async login(email: string, password: string) {
-        const user = await this.usersService.findByEmail(email);
+    async login(data: LoginDto) {
+        const user = await this.usersService.findByEmail(data.email);
 
         if(!user) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
         if(!isPasswordValid) {
             throw new UnauthorizedException('Invalid credentials');

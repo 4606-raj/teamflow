@@ -4,6 +4,7 @@ import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,8 +20,8 @@ export class AuthController {
     }
 
     @Post('login')
-    login(@Body() data: { email: string; password: string }) {
-        return this.authService.login(data.email, data.password);
+    login(@Body() data: LoginDto) {
+        return this.authService.login(data);
     }
 
     @Post('logout')
