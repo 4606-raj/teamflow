@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, Req } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { OrganizationRepository } from './repositories/organization.repository';
 import { AuthService } from '../auth/auth.service';
+import { MembershipRole } from '@prisma/client/index-browser';
 
 @Injectable()
 export class OrganizationsService {
@@ -32,6 +33,23 @@ export class OrganizationsService {
             email,
             organizationId,
             membership.role
+        );
+    }
+
+    async addMember(userId: string, email: string, organizationId: string) {
+        const membership = await this.organizationRepository.findMembership(userId, organizationId);
+
+        if(membership) {
+            throw new ForbiddenException("You are already a member of this organization");
+        }
+
+        this.organizationRepository.addMemberToOrganization(userId, organizationId, MembershipRole.MEMBER);
+
+        return this.authService.generateTokens(
+            userId,
+            email,
+            organizationId,
+            MembershipRole.MEMBER
         );
     }
 }

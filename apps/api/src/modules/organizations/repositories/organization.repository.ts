@@ -73,4 +73,14 @@ export class OrganizationRepository {
             }
         })
     }
+    
+    async addMemberToOrganization(userId: string, organizationId: string, role: MembershipRole) {
+        return this.prisma.membership.create({
+            data: {
+                userId,
+                organizationId,
+                role
+            }
+        })
+    }
 }

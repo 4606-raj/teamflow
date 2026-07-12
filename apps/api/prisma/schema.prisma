@@ -18,6 +18,12 @@ enum MembershipRole {
   MEMBER
 }
 
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -44,6 +50,7 @@ model Organization {
   slug        String   @unique
 
   memberships Membership[]
+  invitations Invitation[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -71,4 +78,20 @@ model Membership {
   
   @@map("memberships")
 
+}
+
+model Invitation {
+  id              String   @id @default(cuid())
+  email           String
+  organizationId  String
+  role            MembershipRole @default(MEMBER)
+  token           String?
+  status          InvitationStatus @default(PENDING)
+  expiresAt       DateTime
+  createdBy       String
+  createdAt       DateTime @default(now())
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("invitations")
 }

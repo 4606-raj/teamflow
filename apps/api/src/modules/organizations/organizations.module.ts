@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [AuthModule],
   providers: [OrganizationsService, OrganizationRepository],
-  controllers: [OrganizationsController]
+  controllers: [OrganizationsController],
+  exports: [OrganizationsService]
 })
 export class OrganizationsModule {}
