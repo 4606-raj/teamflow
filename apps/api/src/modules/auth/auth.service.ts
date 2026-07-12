@@ -7,13 +7,17 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MembershipRole } from '@prisma/client';
 import { LoginDto } from './dto/login.dto';
+import { OrganizationRepository } from '../organizations/repositories/organization.repository';
+import { Permission } from '@/common/enums/permission.enum';
+import { ROLE_PERMISSIONS } from '@/common/rbac/role-permissions';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly organizationRepository: OrganizationRepository
     ) {}
 
     async register(data: RegisterDto) {
@@ -39,7 +43,16 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const tokens = await this.generateTokens(user.id, user.email);
+        const membership = await this.organizationRepository.findMembershipByUserId(user.id);
+
+        const tokens = await this.generateTokens(
+            user.id,
+            user.email,
+            membership ? membership.organizationId : undefined,
+            membership ? membership.role : undefined,
+            membership ? ROLE_PERMISSIONS[membership.role]: undefined
+        );
+
 
         // store hashed refresh token in DB
         await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
@@ -63,13 +76,14 @@ export class AuthService {
     }
 
     // Generates access and refresh token
-    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole) {
+    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole, permissions?: Array<Permission>) {
 
         const payload = {
             sub: userId,
             email,
             organizationId,
             role,
+            permissions,
         }
         
         const [accessToken, refreshToken] = await Promise.all([
@@ -93,7 +107,15 @@ export class AuthService {
             throw new UnauthorizedException('Invalid refresh token')
         }
 
-        const tokens = await this.generateTokens(user.id, user.email);
+        const membership = await this.organizationRepository.findMembershipByUserId(user.id);
+
+        const tokens = await this.generateTokens(
+            user.id, 
+            user.email,
+            membership ? membership.organizationId : undefined,
+            membership ? membership.role : undefined,
+            membership ? ROLE_PERMISSIONS[membership.role]: undefined
+        );
 
         // update hashed refresh token in DB
         await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);

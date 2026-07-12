@@ -73,6 +73,14 @@ export class OrganizationRepository {
             }
         })
     }
+
+    async findMembershipByUserId(userId: string) {
+        return this.prisma.membership.findFirst({
+            where: {
+                userId: userId
+            }
+        })
+    }
     
     async addMemberToOrganization(userId: string, organizationId: string, role: MembershipRole) {
         return this.prisma.membership.create({
