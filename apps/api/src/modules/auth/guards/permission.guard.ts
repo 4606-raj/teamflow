@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Permission } from '@/common/enums/permission.enum';
+import { SystemRole } from '@prisma/client';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -41,6 +42,12 @@ export class PermissionGuard implements CanActivate {
         'User not authenticated',
       );
     }
+
+    if(user.systemRole == SystemRole.SUPERADMIN) {
+      return true;
+    }
+
+    console.log(user)
 
 
     const userPermissions =

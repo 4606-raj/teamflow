@@ -7,9 +7,10 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '@/common/decorators/roles.decorator';
 import { Role } from '@/common/enums/role.enum';
+import { SystemRole } from '@prisma/client';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class RoleGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -36,6 +37,10 @@ export class RolesGuard implements CanActivate {
 
     if (!user.role) {
       throw new ForbiddenException('User role not found');
+    }
+
+    if(user.systemRole == SystemRole.SUPERADMIN) {
+      return true;
     }
 
     const hasRole = requiredRoles.includes(user.role);

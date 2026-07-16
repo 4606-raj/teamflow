@@ -26,6 +26,7 @@ export class UsersRepository {
                 email: true,
                 firstName: true,
                 lastName: true,
+                systemRole: true,
                 isActive: true,
                 createdAt: true,
                 updatedAt: true,

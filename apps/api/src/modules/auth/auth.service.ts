@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { MembershipRole } from '@prisma/client';
+import { MembershipRole, SystemRole } from '@prisma/client';
 import { LoginDto } from './dto/login.dto';
 import { OrganizationRepository } from '../organizations/repositories/organization.repository';
 import { Permission } from '@/common/enums/permission.enum';
@@ -45,12 +45,15 @@ export class AuthService {
 
         const membership = await this.organizationRepository.findMembershipByUserId(user.id);
 
+        const permissions = user.systemRole == SystemRole.SUPERADMIN? ROLE_PERMISSIONS[SystemRole.SUPERADMIN]: membership ? ROLE_PERMISSIONS[membership.role]: undefined;
+        
         const tokens = await this.generateTokens(
             user.id,
             user.email,
             membership ? membership.organizationId : undefined,
             membership ? membership.role : undefined,
-            membership ? ROLE_PERMISSIONS[membership.role]: undefined
+            permissions,
+            user.systemRole
         );
 
 
@@ -76,14 +79,17 @@ export class AuthService {
     }
 
     // Generates access and refresh token
-    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole, permissions?: Array<Permission>) {
+    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole, permissions?: Array<Permission>, systemRole?: SystemRole,) {
 
+        systemRole = systemRole? systemRole: SystemRole.USER;
+        
         const payload = {
             sub: userId,
             email,
             organizationId,
             role,
             permissions,
+            systemRole,
         }
         
         const [accessToken, refreshToken] = await Promise.all([
@@ -114,7 +120,8 @@ export class AuthService {
             user.email,
             membership ? membership.organizationId : undefined,
             membership ? membership.role : undefined,
-            membership ? ROLE_PERMISSIONS[membership.role]: undefined
+            membership ? ROLE_PERMISSIONS[membership.role]: undefined,
+            user.systemRole
         );
 
         // update hashed refresh token in DB

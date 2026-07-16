@@ -18,6 +18,11 @@ enum MembershipRole {
   MEMBER
 }
 
+enum SystemRole {
+  SUPERADMIN
+  USER
+}
+
 enum InvitationStatus {
   PENDING
   ACCEPTED
@@ -31,6 +36,8 @@ model User {
   
   firstName   String?
   lastName    String?
+
+  systemRole  SystemRole @default(USER)
   
   isActive    Boolean  @default(true)
 

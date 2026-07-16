@@ -3,3 +3,8 @@ export enum Role {
   ADMIN = 'ADMIN',
   MEMBER = 'MEMBER',
 }
+
+export enum SystemRole {
+  // USER = 'USER',
+  SUPERADMIN = 'SUPERADMIN',
+}
