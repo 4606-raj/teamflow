@@ -3,13 +3,15 @@ import { createBrowserRouter } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
 import { GuestRoute } from './GuestRoute'
 
+import Login from '@/pages/auth/Login'
+
 export const router = createBrowserRouter([
   {
     element: <GuestRoute />,
     children: [
       {
         path: '/login',
-        element: <>login</>,
+        element: <Login />,
       },
       {
         path: '/register',
