@@ -8938,6 +8938,10 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  turbo@2.9.18:
+    optionalDependencies:
+      fsevents: 2.3.3
+
   turbo@2.10.5:
     optionalDependencies:
       '@turbo/darwin-64': 2.10.5
