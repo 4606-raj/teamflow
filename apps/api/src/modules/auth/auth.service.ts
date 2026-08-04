@@ -10,6 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { OrganizationRepository } from '../organizations/repositories/organization.repository';
 import { Permission } from '@/common/enums/permission.enum';
 import { ROLE_PERMISSIONS } from '@/common/rbac/role-permissions';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
         return { user, tokens };
     }
 
-    async login(data: LoginDto) {
+    async login(data: LoginDto, res: Response) {
         const user = await this.usersService.findByEmail(data.email);
 
         if(!user) {
@@ -59,6 +60,14 @@ export class AuthService {
 
         // store hashed refresh token in DB
         await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+
+        res.cookie('refreshToken', tokens.refreshToken, {
+            httpOnly: true,
+            secure: false, // true in production
+            sameSite: 'lax',
+            path: '/auth/refresh',
+        });
+
 
         return { user: new UserEntity(user), tokens };
     }

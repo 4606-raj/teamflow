@@ -4,6 +4,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { GuestRoute } from './GuestRoute'
 
 import Login from '@/pages/auth/Login'
+import Dashboard from '@/pages/Dashboard'
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +26,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <>home</>,
+        element: <Dashboard />,
       },
       {
         path: '/projects',

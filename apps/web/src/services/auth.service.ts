@@ -1,16 +1,18 @@
 import { api } from '@/lib/api'
+import type { User } from '@/types/auth.types'
+import type { AxiosResponse } from 'axios'
 
 export const authService = {
-//   login(data: LoginDto) {
-//     return api.post('/auth/login', data)
-//   },
+  login(data: any): Promise<AxiosResponse> {
+    return api.post('/auth/login', data)
+  },
 
 //   register(data: RegisterDto) {
 //     return api.post('/auth/register', data)
 //   },
 
-  me() {
-    return api.get('/auth/me')
+  me(): Promise<AxiosResponse<User>>  {
+    return api.get<User>('/auth/me')
   },
 
   logout() {

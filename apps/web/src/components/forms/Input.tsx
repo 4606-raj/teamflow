@@ -6,7 +6,7 @@ type FormInputProps = {
   registration: UseFormRegisterReturn
 } & React.InputHTMLAttributes<HTMLInputElement>
 
-export function FormInput({
+export function Input({
   label,
   error,
   registration,

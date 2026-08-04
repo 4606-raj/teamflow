@@ -1,10 +1,11 @@
-import { Body, Post, Controller, Get, Req, UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Body, Post, Controller, Get, Req, UseGuards, UnauthorizedException, BadRequestException, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import { LoginDto } from './dto/login.dto';
+import { type Request, type Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -20,8 +21,8 @@ export class AuthController {
     }
 
     @Post('login')
-    login(@Body() data: LoginDto) {
-        return this.authService.login(data);
+    login(@Body() data: LoginDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.login(data, res);
     }
 
     @Post('logout')
@@ -37,14 +38,17 @@ export class AuthController {
     }
 
     @Post('refresh')
-    async refresh(@Body() dto: {refreshToken: string }) {
+    async refresh(@Req() req: Request) {
 
-        if (!dto || !dto.refreshToken) {
-            throw new BadRequestException('Refresh token must be provided in the request body');
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            throw new BadRequestException('Refresh token missing');
         }
+
         
         try {
-            const decoded = await this.jwtService.verifyAsync(dto.refreshToken, {
+            const decoded = await this.jwtService.verifyAsync(refreshToken, {
                 secret: this.configService.get('JWT_REFRESH_SECRET'),
             }) as any;
             
@@ -52,7 +56,7 @@ export class AuthController {
                 throw new UnauthorizedException('Invalid refresh token');
             }
             
-            return this.authService.refreshTokens(decoded.sub, dto.refreshToken);
+            return this.authService.refreshTokens(decoded.sub, refreshToken);
         }
         catch (error) {
             throw new UnauthorizedException('Invalid or expired refresh token');

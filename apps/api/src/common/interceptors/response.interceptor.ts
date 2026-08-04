@@ -15,6 +15,14 @@ export class ResponseInterceptor
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<any> {
+
+    const ctx = context.switchToHttp();
+    const request = ctx.getRequest();
+
+    if (request.method === 'OPTIONS') {
+      return next.handle();
+    }
+    
     return next.handle().pipe(
       map((response) => {
         // Custom response format

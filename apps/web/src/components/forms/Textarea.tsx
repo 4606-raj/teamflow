@@ -6,7 +6,7 @@ type Props = {
   registration: UseFormRegisterReturn
 }
 
-export function FormTextarea({
+export function Textarea({
   label,
   error,
   registration,

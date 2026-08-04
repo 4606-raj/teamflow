@@ -3,7 +3,7 @@ type FormButtonProps = {
   children: React.ReactNode
 }
 
-export function FormButton({
+export function Button({
   isLoading,
   children,
 }: FormButtonProps) {

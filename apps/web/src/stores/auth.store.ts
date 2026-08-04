@@ -1,57 +1,78 @@
-// stores/auth.store.ts
-
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, devtools } from 'zustand/middleware'
 
 import { authService } from '@/services/auth.service'
 import type { AuthState, User } from '@/types/auth.types'
 
 export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
+  devtools(
 
-      setUser: (user: User | null) =>
-        set({
-          user,
-          isAuthenticated: !!user,
-        }),
+    persist(
+      (set) => ({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isLoading: false,
 
-      logout: () =>
-        set({
-          user: null,
-          isAuthenticated: false,
-        }),
-
-      fetchCurrentUser: async () => {
-        try {
-          set({ isLoading: true })
-
-          const response = await authService.me()
-
+        login: (
+          user: User, 
+          tokens: { accessToken: string | null; refreshToken: string | null }
+        ) => {
           set({
-            user: response.data,
-            isAuthenticated: true,
+            user: user,
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            isAuthenticated: true
+          }),
+           false,
+          'auth/login'
+        },
+        setAccessToken: (accessToken: string | null) => {
+          set({
+            accessToken: accessToken,
+            isAuthenticated: true
+
           })
-        } catch {
+        },
+        setRefreshToken: (refreshToken: string | null) => {
+          set({
+            refreshToken: refreshToken
+          })
+        },
+        
+        setUser: (user: User | null) =>
+          set({
+            user,
+            isAuthenticated: !!user,
+          }),
+
+        logout: () =>
           set({
             user: null,
             isAuthenticated: false,
-          })
-        } finally {
-          set({
-            isLoading: false,
-          })
-        }
-      },
-    }),
-    {
-      name: 'teamflow-auth',
-      partialize: (state) => ({
-        isAuthenticated: state.isAuthenticated,
+            accessToken: null,
+            refreshToken: null,
+          }),
+
+        fetchCurrentUser: async () => {
+          try {
+            const response = await authService.me();
+            set({
+                user: response.data,
+                isAuthenticated: true,
+            });
+          } catch {
+            set({
+              user: null,
+              isAuthenticated: false,
+            });
+          }
+        },
       }),
-    }
+      {
+        name: 'teamflow-auth',
+      }
+    )
   )
 )
