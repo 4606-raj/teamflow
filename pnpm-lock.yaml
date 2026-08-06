@@ -21,6 +21,7 @@ packages:
 
   '@pnpm/exe@11.12.0':
     resolution: {integrity: sha512-JLuHatntqB+TXtGzIb5BkmzOKzNQcX6CFdZ4Ayy9+hfBCiO/eSEspp9uaawQK4wokYj6O/YNIUOtkDyXdOHzog==}
+    deprecated: This release is broken. Please upgrade to v11.13.1 or newer.
     hasBin: true
 
   '@pnpm/linux-arm64@11.12.0':
@@ -363,8 +364,6 @@ snapshots:
 
   yallist@5.0.0: {}
 
----
-lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
