@@ -1,36 +1,39 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginSchema } from '@/schemas/auth.schema';
+import { registerSchema, type RegisterSchema } from '@/schemas/auth.schema';
 import { useAuthStore, authApi } from '@/features/auth';
-import { Button, Card, CardContent, CardHeader, Checkbox, Input, Label } from '@/shared/components/ui';
+import { Button, Card, CardContent, CardHeader, Input, Label } from '@/shared/components/ui';
 
-export default function Login() {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const navigate = useNavigate()
   const login = useAuthStore(state => state.login)
 
   const {
     register,
-    control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginSchema>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterSchema>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
-      remember: false,
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
     },
   });
 
-  const onSubmit = async (data: LoginSchema) => {
+  const onSubmit = async (data: RegisterSchema) => {
 
     try {
-      const response = await authApi.login(data)
+      const { confirmPassword, ...registerData } = data; // Exclude confirmPassword from the data sent to the API
+      const response = await authApi.register(registerData)
       
       login(response.data.user, response.data.tokens);
 
@@ -50,11 +53,11 @@ export default function Login() {
           </div>
 
           <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back
+            Welcome to TeamFlow
           </h1>
 
           <p className="text-sm text-muted-foreground">
-            Sign in to continue to TeamFlow
+            Sign up to continue to TeamFlow
           </p>
         </CardHeader>
 
@@ -63,6 +66,44 @@ export default function Login() {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-5"
           >
+            {/* First Name */}
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
+
+              <Input
+                id="firstName"
+                type="text"
+                placeholder="John"
+                autoComplete="given-name"
+                {...register('firstName')}
+              />
+
+              {errors.firstName && (
+                <p className="text-sm text-destructive">
+                  {errors.firstName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Last Name */}
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Doe"
+                autoComplete="family-name"
+                {...register('lastName')}
+              />
+
+              {errors.lastName && (
+                <p className="text-sm text-destructive">
+                  {errors.lastName.message}
+                </p>
+              )}
+            </div>
+            
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -115,35 +156,37 @@ export default function Login() {
               )}
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Controller
-                  control={control}
-                  name="remember"
-                  render={({ field }) => (
-                    <Checkbox
-                      id="remember"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  {...register('confirmPassword')}
                 />
 
-                <Label
-                  htmlFor="remember"
-                  className="cursor-pointer font-normal"
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  Remember me
-                </Label>
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
               </div>
 
-              <Link
-                to="/forgot-password"
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
+              {errors.confirmPassword && (
+                <p className="text-sm text-destructive">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             {/* Submit */}
@@ -153,7 +196,7 @@ export default function Login() {
               className="w-full"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
+              {isSubmitting ? 'Signing Up...' : 'Sign Up'}
             </Button>
 
             {/* Divider */}
@@ -180,12 +223,12 @@ export default function Login() {
 
             {/* Register */}
             <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link
-                to="/register"
+                to="/login"
                 className="font-semibold text-primary hover:underline"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
           </form>

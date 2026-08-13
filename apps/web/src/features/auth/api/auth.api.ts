@@ -7,9 +7,9 @@ export const authApi = {
     return api.post('/auth/login', data)
   },
 
-//   register(data: RegisterDto) {
-//     return api.post('/auth/register', data)
-//   },
+  register(data: any): Promise<AxiosResponse>{
+    return api.post('/auth/register', data)
+  },
 
   me(): Promise<AxiosResponse<User>>  {
     return api.get<User>('/auth/me')
