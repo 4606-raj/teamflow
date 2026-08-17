@@ -1,6 +1,21 @@
-import { SystemRole, User } from "@prisma/client";
+import { Membership, Prisma, SystemRole } from "@prisma/client";
 
-type SafeUser = Omit<User, 'password' | 'refreshTokenHash'> & Partial<Pick<User, 'password' | 'refreshTokenHash'>>;
+type UserWithMemberships = Prisma.UserGetPayload<{
+    include: {
+        memberships: {
+            include: {
+                organization: true;
+            };
+        };
+    };
+}>;
+
+type UserEntityInput = Omit<
+    UserWithMemberships,
+    "password" | "refreshTokenHash" | "memberships"
+> & {
+    memberships?: UserWithMemberships["memberships"];
+};
 
 export class UserEntity {
     id!: string;
@@ -12,7 +27,14 @@ export class UserEntity {
     createdAt!: Date;
     updatedAt!: Date;
 
-    constructor(user: SafeUser) {
+    organizations?: {
+        id: string;
+        name: string;
+        slug: string;
+        role: Membership["role"];
+    }[];
+
+    constructor(user: UserEntityInput) {
         this.id = user.id;
         this.email = user.email;
         this.firstName = user.firstName;
@@ -21,5 +43,12 @@ export class UserEntity {
         this.isActive = user.isActive;
         this.createdAt = user.createdAt;
         this.updatedAt = user.updatedAt;
+
+        this.organizations = user.memberships?.map((membership) => ({
+            id: membership.organization.id,
+            name: membership.organization.name,
+            slug: membership.organization.slug,
+            role: membership.role,
+        }));
     }
 }

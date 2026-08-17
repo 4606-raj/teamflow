@@ -6,9 +6,16 @@ import { CreateUserDto } from "../dto/create-user.dto";
 export class UsersRepository {
     constructor(private readonly prisma: PrismaService) {}
 
-    findById(id: string) {
-        return this.prisma.user.findUnique({
+    async findById(id: string) {
+        return await this.prisma.user.findUnique({
             where: { id },
+            include: {
+                memberships: {
+                    include: {
+                        organization: true
+                    }
+                },
+            }
         })
     }
 
