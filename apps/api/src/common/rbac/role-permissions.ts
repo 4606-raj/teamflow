@@ -8,6 +8,12 @@ export const ROLE_PERMISSIONS: Record<Role|SystemRole, Permission[]> = {
     Permission.MEMBER_INVITE,
     Permission.MEMBER_REMOVE,
     Permission.MEMBER_UPDATE_ROLE,
+
+    Permission.ORGANIZATION_READ,
+    Permission.ORGANIZATION_UPDATE,
+    Permission.MEMBER_INVITE,
+    Permission.MEMBER_REMOVE,
+    Permission.MEMBER_UPDATE_ROLE,
   ],
 
   [Role.ADMIN]: [

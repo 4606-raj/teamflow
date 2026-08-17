@@ -13,7 +13,7 @@ import { Permissions } from '@/common/decorators/permissions.decorator';
 export class OrganizationsController {
     constructor(private readonly organizationService: OrganizationsService) {}
 
-    @Permissions(Permission.ORGANIZATION_CREATE)
+    // @Permissions(Permission.ORGANIZATION_CREATE)
     @Post('/')
     create(@Req() req, @Body() data: CreateOrganizationDto) {
         return this.organizationService.create(req.user.userId, data);
