@@ -4,7 +4,9 @@ import type { AxiosResponse } from 'axios'
 
 export const authApi = {
   login(data: any): Promise<AxiosResponse> {
-    return api.post('/auth/login', data)
+    return api.post('/auth/login', data, {
+      skipAuthRefresh: true,
+    })
   },
 
   register(data: any): Promise<AxiosResponse>{

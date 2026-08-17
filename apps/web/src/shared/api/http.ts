@@ -2,6 +2,12 @@ import axios from 'axios'
 import { toast } from 'sonner'
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipAuthRefresh?: boolean
+  }
+}
+
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -41,55 +47,33 @@ http.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If not 401 or already retried, reject
     if (
       error.response?.status !== 401 ||
-      originalRequest._retry
+      originalRequest._retry ||
+      originalRequest.skipAuthRefresh
     ) {
       return Promise.reject(error);
     }
 
-
     originalRequest._retry = true;
 
-
     try {
-      // Call refresh endpoint
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, {
-          withCredentials: true,
-        }
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/refresh`,
+        {},
+        { withCredentials: true }
       );
 
-      const { accessToken } = response.data.data;
-      const { refreshToken } = response.data.data;
+      const { accessToken, refreshToken } = response.data.data;
 
-      // Update zustand
-      useAuthStore
-        .getState()
-        .setAccessToken(accessToken);
+      useAuthStore.getState().setAccessToken(accessToken);
+      useAuthStore.getState().setRefreshToken(refreshToken);
 
-      useAuthStore
-        .getState()
-        .setRefreshToken(refreshToken);
-
-
-      // Update failed request token
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-      // Retry original request
       return http(originalRequest);
-
     } catch (refreshError) {
-
-      console.log(refreshError, 'refreshError');
-      
-      
-      // Refresh failed -> logout
-      useAuthStore
-        .getState()
-        .logout();
-
-
+      useAuthStore.getState().logout();
       return Promise.reject(refreshError);
     }
   }
