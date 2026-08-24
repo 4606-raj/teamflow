@@ -38,13 +38,12 @@ export default function Register() {
       
       login(response.data.user, response.data.tokens);
 
-      await me()
-      console.log(useAuthStore(state => state.user))
-      
+      const user = await me()
+      if (!user) return;
 
-      // console.log(response)
-
-      // navigate('/')
+      if (!user.organizations.length) {
+        navigate('/onboarding')
+      }
     }
     catch(e) {
       console.log(e);
