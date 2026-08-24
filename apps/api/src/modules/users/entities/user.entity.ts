@@ -1,8 +1,13 @@
-import { Membership, Prisma, SystemRole } from "@prisma/client";
+import { InvitationStatus, Membership, MembershipRole, Prisma, SystemRole } from "@prisma/client";
 
 type UserWithMemberships = Prisma.UserGetPayload<{
     include: {
         memberships: {
+            include: {
+                organization: true;
+            };
+        };
+        invitations: {
             include: {
                 organization: true;
             };
@@ -12,9 +17,10 @@ type UserWithMemberships = Prisma.UserGetPayload<{
 
 type UserEntityInput = Omit<
     UserWithMemberships,
-    "password" | "refreshTokenHash" | "memberships"
+    "password" | "refreshTokenHash" | "memberships" | "invitations"
 > & {
     memberships?: UserWithMemberships["memberships"];
+    invitations?: UserWithMemberships["invitations"];
 };
 
 export class UserEntity {
@@ -34,6 +40,15 @@ export class UserEntity {
         role: Membership["role"];
     }[];
 
+    invitations?: {
+        id: string;
+        token: string | null;
+        email: string;
+        role: MembershipRole;
+        status: InvitationStatus;
+        organization: Object;
+    }[];
+
     constructor(user: UserEntityInput) {
         this.id = user.id;
         this.email = user.email;
@@ -49,6 +64,15 @@ export class UserEntity {
             name: membership.organization.name,
             slug: membership.organization.slug,
             role: membership.role,
+        }));
+
+        this.invitations = user.invitations?.map((invitation) => ({
+            id: invitation.id,
+            token: invitation.token,
+            email: invitation.email,
+            role: invitation.role,
+            status: invitation.status,
+            organization: invitation.organization,
         }));
     }
 }

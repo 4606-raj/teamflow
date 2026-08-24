@@ -44,6 +44,7 @@ model User {
   refreshTokenHash  String?
 
   memberships Membership[]
+  invitations Invitation[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -94,6 +95,7 @@ model Invitation {
   role            MembershipRole @default(MEMBER)
   token           String?
   status          InvitationStatus @default(PENDING)
+  user            User @relation(fields: [email], references: [email])
   expiresAt       DateTime
   createdBy       String
   createdAt       DateTime @default(now())

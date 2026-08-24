@@ -10,7 +10,6 @@ export class InvitationsController {
 
     @Post('/')
     create(@Req() req, @Body() dto: CreateInvitationDto) {
-        console.log(req.user)
         return this.invitationsService.create(req.user.userId, req.user.organizationId, dto);
     }
 

@@ -1,6 +1,7 @@
 import { PrismaService } from "@/common/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { CreateUserDto } from "../dto/create-user.dto";
+import { InvitationStatus } from "@prisma/client";
 
 @Injectable()
 export class UsersRepository {
@@ -15,6 +16,14 @@ export class UsersRepository {
                         organization: true
                     }
                 },
+                invitations: {
+                    where: {
+                        status: InvitationStatus.PENDING,
+                    },
+                    include: {
+                        organization: true
+                    }
+                }
             }
         })
     }

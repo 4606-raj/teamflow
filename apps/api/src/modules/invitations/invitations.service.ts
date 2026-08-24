@@ -27,7 +27,7 @@ export class InvitationsService {
 
         const existingInvitation = await this.invitationsRepository.getByEmail(dto.email);
 
-        if(existingInvitation) {
+        if(existingInvitation && existingInvitation.organizationId == organizationId) {
             throw new ConflictException('Invitation already exists for this email');
         }
         

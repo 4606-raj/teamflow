@@ -12,7 +12,9 @@ export default function Login() {
 
   const navigate = useNavigate()
   const login = useAuthStore(state => state.login)
-
+  const me = useAuthStore(state => state.fetchCurrentUser);
+  // const user = useAuthStore(state => state.user)
+  
   const {
     register,
     control,
@@ -34,7 +36,19 @@ export default function Login() {
       
       login(response.data.user, response.data.tokens);
 
-      navigate('/')
+      const user = await me()
+      if (!user) return;
+      
+      if(user.invitations.length) {
+        // setInvitaitons(user.invitations)
+      }
+
+      if (!user.organizations.length) {
+        navigate('/onboarding')
+      }
+      else { 
+        // navigate('/')
+      }
     }
     catch(e) {
       console.log(e);

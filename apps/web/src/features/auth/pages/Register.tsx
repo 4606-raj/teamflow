@@ -13,6 +13,7 @@ export default function Register() {
 
   const navigate = useNavigate()
   const login = useAuthStore(state => state.login)
+  const me = useAuthStore(state => state.fetchCurrentUser);
 
   const {
     register,
@@ -37,7 +38,13 @@ export default function Register() {
       
       login(response.data.user, response.data.tokens);
 
-      navigate('/')
+      await me()
+      console.log(useAuthStore(state => state.user))
+      
+
+      // console.log(response)
+
+      // navigate('/')
     }
     catch(e) {
       console.log(e);
