@@ -34,7 +34,7 @@ export default function Login() {
     try {
       const response = await authApi.login(data)
       
-      login(response.data.user, response.data.tokens);
+      login(response.data.user, response.data.accessToken);
 
       const user = await me()
       if (!user) return;
@@ -152,12 +152,12 @@ export default function Login() {
                 </Label>
               </div>
 
-              <Link
+              {/*<Link
                 to="/forgot-password"
                 className="text-sm font-medium text-primary hover:underline"
               >
                 Forgot password?
-              </Link>
+              </Link>*/}
             </div>
 
             {/* Submit */}

@@ -25,5 +25,7 @@ export const envValidationSchema = Joi.object({
 
   JWT_REFRESH_SECRET: Joi.string().required(),
 
-  JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
+  JWT_REFRESH_EXPIRES_IN_SHORT: Joi.string().required(),
+
+  JWT_REFRESH_EXPIRES_IN_LONG: Joi.string().required(),
 })

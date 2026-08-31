@@ -16,8 +16,8 @@ export class AuthController {
     ) {}
 
     @Post('register')
-    register(@Body() data: RegisterDto) {
-        return this.authService.register(data);
+    register(@Body() data: RegisterDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.register(data, res);
     }
 
     @Post('login')
@@ -27,8 +27,8 @@ export class AuthController {
 
     @Post('logout')
     @UseGuards(JwtAuthGuard)
-    logout(@Req() req: any) {
-        return this.authService.logout(req.user.userId);
+    logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+        return this.authService.logout(req.user.userId, res);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -38,7 +38,7 @@ export class AuthController {
     }
 
     @Post('refresh')
-    async refresh(@Req() req: Request) {
+    async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
 
         const refreshToken = req.cookies.refreshToken;
 
@@ -56,7 +56,7 @@ export class AuthController {
                 throw new UnauthorizedException('Invalid refresh token');
             }
             
-            return this.authService.refreshTokens(decoded.sub, refreshToken);
+            return this.authService.refreshTokens(decoded.sub, refreshToken, res);
         }
         catch (error) {
             throw new UnauthorizedException('Invalid or expired refresh token');

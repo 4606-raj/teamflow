@@ -14,9 +14,8 @@ export const http = axios.create({
 })
 
 http.interceptors.request.use((config) => {
-  // TODO:
   const token = useAuthStore.getState().accessToken
-  
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -64,10 +63,9 @@ http.interceptors.response.use(
         { withCredentials: true }
       );
 
-      const { accessToken, refreshToken } = response.data.data;
+      const { accessToken } = response.data.data;
 
       useAuthStore.getState().setAccessToken(accessToken);
-      useAuthStore.getState().setRefreshToken(refreshToken);
 
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 

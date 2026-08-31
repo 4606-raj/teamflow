@@ -33,10 +33,11 @@ export default function Register() {
   const onSubmit = async (data: RegisterSchema) => {
 
     try {
-      const { confirmPassword, ...registerData } = data; // Exclude confirmPassword from the data sent to the API
+      const { email, password, firstName, lastName } = data;
+      const registerData = { email, password, firstName, lastName };
       const response = await authApi.register(registerData)
       
-      login(response.data.user, response.data.tokens);
+      login(response.data.user, response.data.accessToken);
 
       const user = await me()
       if (!user) return;

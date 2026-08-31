@@ -10,6 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { OrganizationRepository } from '../organizations/repositories/organization.repository';
 import { Permission } from '@/common/enums/permission.enum';
 import { ROLE_PERMISSIONS } from '@/common/rbac/role-permissions';
+import { durationToMilliseconds } from '@/common/utils/duration-to-milliseconds';
 import { Response } from 'express';
 
 @Injectable()
@@ -21,14 +22,16 @@ export class AuthService {
         private readonly organizationRepository: OrganizationRepository
     ) {}
 
-    async register(data: RegisterDto) {
+    async register(data: RegisterDto, res: Response) {
         const user = await this.usersService.create(data);
         const tokens = await this.generateTokens(user.id, user.email);
 
         // store hashed refresh token in DB
         await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
 
-        return { user, tokens };
+        this.setRefreshTokenCookie(res, tokens.refreshToken);
+
+        return { user, accessToken: tokens.accessToken };
     }
 
     async login(data: LoginDto, res: Response) {
@@ -61,23 +64,34 @@ export class AuthService {
         // store hashed refresh token in DB
         await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
 
-        res.cookie('refreshToken', tokens.refreshToken, {
-            httpOnly: true,
-            secure: false, // true in production
-            sameSite: 'lax',
-            path: '/auth/refresh',
-        });
+        this.setRefreshTokenCookie(res, tokens.refreshToken, data.remember);
 
 
-        return { user: new UserEntity(user), tokens };
+        return { user: new UserEntity(user), accessToken: tokens.accessToken };
     }
 
-    async logout(userId: string) {
+    async logout(userId: string, res: Response) {
         await this.usersService.updateRefreshToken(userId, null);
+        res.clearCookie('refreshToken', { path: '/auth/refresh' });
 
         return { message: 'Logged out successfully' };
     }
-    
+
+    private setRefreshTokenCookie(res: Response, refreshToken: string, remember?: boolean) {
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: this.configService.get('NODE_ENV') === 'production',
+            sameSite: 'lax',
+            path: '/auth/refresh',
+            ...(remember? {
+                maxAge: durationToMilliseconds(
+                    this.configService.get('JWT_REFRESH_EXPIRES_IN_LONG'),
+                ),
+            }: {}),
+        });
+
+    }
+
     async getMe(userId: string) {
         const user = await this.usersService.findById(userId);
         
@@ -88,7 +102,7 @@ export class AuthService {
     }
 
     // Generates access and refresh token
-    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole, permissions?: Array<Permission>, systemRole?: SystemRole,) {
+    async generateTokens(userId: string, email: string, organizationId?: string, role?: MembershipRole, permissions?: Array<Permission>, systemRole?: SystemRole, remember?: boolean) {
 
         systemRole = systemRole? systemRole: SystemRole.USER;
         
@@ -101,15 +115,17 @@ export class AuthService {
             systemRole,
         }
         
+        const refreshExpriry = remember? this.configService.get('JWT_REFRESH_EXPIRES_IN_LONG'): this.configService.get('JWT_REFRESH_EXPIRES_IN_SHORT')
+
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, { secret: this.configService.get('JWT_ACCESS_SECRET'), expiresIn: this.configService.get('JWT_ACCESS_EXPIRES_IN') }),
-            this.jwtService.signAsync(payload, { secret: this.configService.get('JWT_REFRESH_SECRET'), expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN') })
+            this.jwtService.signAsync(payload, { secret: this.configService.get('JWT_REFRESH_SECRET'), expiresIn:  refreshExpriry })
         ])
 
         return { accessToken, refreshToken};
     }
 
-    async refreshTokens(userId: string, refreshToken: string) {
+    async refreshTokens(userId: string, refreshToken: string, res: Response) {
         const user = await this.usersService.findById(userId);
 
         if(!user || !user.refreshTokenHash) {
@@ -136,6 +152,8 @@ export class AuthService {
         // update hashed refresh token in DB
         await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
 
-        return tokens;
+        this.setRefreshTokenCookie(res, tokens.refreshToken);
+
+        return { accessToken: tokens.accessToken };
     }
 }

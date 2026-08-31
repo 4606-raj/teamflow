@@ -11,22 +11,22 @@ export const useAuthStore = create<AuthState>()(
       (set) => ({
         user: null,
         accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
 
         login: (
           user: User, 
-          tokens: { accessToken: string | null; refreshToken: string | null }
+          accessToken: string | null
         ) => {
-          set({
-            user: user,
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
-            isAuthenticated: true
-          }),
-           false,
-          'auth/login'
+          set(
+            {
+              user,
+              accessToken,
+              isAuthenticated: true,
+            },
+            false,
+            'auth/login',
+          )
         },
         setAccessToken: (accessToken: string | null) => {
           set({
@@ -35,12 +35,6 @@ export const useAuthStore = create<AuthState>()(
 
           })
         },
-        setRefreshToken: (refreshToken: string | null) => {
-          set({
-            refreshToken: refreshToken
-          })
-        },
-        
         setUser: (user: User | null) =>
           set({
             user,
@@ -52,7 +46,6 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             isAuthenticated: false,
             accessToken: null,
-            refreshToken: null,
           }),
 
         fetchCurrentUser: async () => {
