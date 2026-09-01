@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterSchema } from '@/schemas/auth.schema';
+import { registerSchema, type RegisterSchema } from '@/features/auth';
 import { useAuthStore, authApi } from '@/features/auth';
 import { Button, Card, CardContent, CardHeader, Input, Label } from '@/shared/components/ui';
 
@@ -42,7 +42,7 @@ export default function Register() {
       const user = await me()
       if (!user) return;
 
-      if (!user.organizations.length) {
+      if (!user.organizations?.length) {
         navigate('/onboarding')
       }
     }

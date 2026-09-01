@@ -1,15 +1,15 @@
 import { api } from '@/shared/api/api'
-import type { User } from '@/features/auth'
+import type { LoginRequest, RegisterRequest, User } from '@teamflow/types'
 import type { AxiosResponse } from 'axios'
 
 export const authApi = {
-  login(data: any): Promise<AxiosResponse> {
+  login(data: LoginRequest): Promise<AxiosResponse> {
     return api.post('/auth/login', data, {
       skipAuthRefresh: true,
     })
   },
 
-  register(data: any): Promise<AxiosResponse>{
+  register(data: RegisterRequest): Promise<AxiosResponse>{
     return api.post('/auth/register', data)
   },
 

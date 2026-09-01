@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Button, Input } from '@/shared/components/ui';
 import { cn } from '@/shared/utils/cn';
-import type { User } from '@/features/auth';
+import type { User } from '@teamflow/types';
 
 const navigation = [
     { label: 'Overview', href: '/', icon: LayoutDashboard },
@@ -35,7 +35,7 @@ function UserAvatar({ user }: { user: User }) {
 }
 
 function Sidebar({ user, onLogout, onClose }: { user: User; onLogout: () => void; onClose?: () => void }) {
-    const organization = (user?.organizations?.length)? user.organizations[0]: [];
+    const organization = user.organizations?.[0] ?? null;
 
     return (
         <aside className="flex h-full w-64 flex-col border-r bg-sidebar text-sidebar-foreground">

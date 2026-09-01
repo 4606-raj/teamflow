@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { persist, devtools } from 'zustand/middleware'
 
 import { authApi } from '@/features/auth'
-import type { AuthState, User } from '@/features/auth'
+import type { AuthState } from '@/features/auth'
+import type { User } from '@teamflow/types'
 
 export const useAuthStore = create<AuthState>()(
   devtools(

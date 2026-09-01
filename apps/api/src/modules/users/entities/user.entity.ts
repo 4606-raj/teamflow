@@ -1,4 +1,9 @@
 import { InvitationStatus, Membership, MembershipRole, Prisma, SystemRole } from "@prisma/client";
+import type {
+    Invitation as SharedInvitation,
+    Organization as SharedOrganization,
+    User as SharedUser,
+} from '@teamflow/types';
 
 type UserWithMemberships = Prisma.UserGetPayload<{
     include: {
@@ -23,7 +28,7 @@ type UserEntityInput = Omit<
     invitations?: UserWithMemberships["invitations"];
 };
 
-export class UserEntity {
+export class UserEntity implements SharedUser {
     id!: string;
     email!: string;
     firstName!: string | null;
@@ -33,21 +38,8 @@ export class UserEntity {
     createdAt!: Date;
     updatedAt!: Date;
 
-    organizations?: {
-        id: string;
-        name: string;
-        slug: string;
-        role: Membership["role"];
-    }[];
-
-    invitations?: {
-        id: string;
-        token: string | null;
-        email: string;
-        role: MembershipRole;
-        status: InvitationStatus;
-        organization: Object;
-    }[];
+    organizations?: SharedOrganization[];
+    invitations?: SharedInvitation[];
 
     constructor(user: UserEntityInput) {
         this.id = user.id;
@@ -72,7 +64,11 @@ export class UserEntity {
             email: invitation.email,
             role: invitation.role,
             status: invitation.status,
-            organization: invitation.organization,
+            organization: {
+                id: invitation.organization.id,
+                name: invitation.organization.name,
+                slug: invitation.organization.slug,
+            },
         }));
     }
 }

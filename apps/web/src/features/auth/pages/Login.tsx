@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginSchema } from '@/schemas/auth.schema';
+import { loginSchema, type LoginSchema } from '@/features/auth';
 import { useAuthStore, authApi } from '@/features/auth';
 import { Button, Card, CardContent, CardHeader, Checkbox, Input, Label } from '@/shared/components/ui';
 
@@ -38,12 +38,13 @@ export default function Login() {
 
       const user = await me()
       if (!user) return;
-      
-      if(user.invitations.length) {
-        // setInvitaitons(user.invitations)
+
+      const invitations = user.invitations ?? [];
+      if (invitations.length) {
+        // setInvitaitons(invitations)
       }
 
-      if (!user.organizations.length) {
+      if (!user.organizations?.length) {
         navigate('/onboarding')
       }
       else { 

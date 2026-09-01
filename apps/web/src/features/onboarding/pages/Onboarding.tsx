@@ -6,7 +6,8 @@ import { ArrowRight, Building2, Check, LogOut, Mail, Plus, Sparkles, Users } fro
 import { Button, Card, CardContent, CardHeader, Input, Label } from '@/shared/components/ui';
 import { type CreateOrganizationSchema, createOrganizationSchema } from '@/features/organizaions';
 import { organizationApi } from '@/features/organizaions/api/organizations.api';
-import { useAuthStore, type Invitation } from '@/features/auth';
+import { useAuthStore } from '@/features/auth';
+import type { Invitation } from '@teamflow/types';
 import { invitationsApi } from '../api/invitations.api';
 
 function OnboardingHeader({ firstName, onLogout }: { firstName: string | null; onLogout: () => void }) {
