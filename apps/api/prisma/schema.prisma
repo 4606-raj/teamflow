@@ -29,6 +29,11 @@ enum InvitationStatus {
   REJECTED
 }
 
+enum OAuthProvider {
+  GOOGLE
+  LOCAL
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -36,6 +41,7 @@ model User {
   
   firstName   String?
   lastName    String?
+  avatar      String?
 
   systemRole  SystemRole @default(USER)
   
@@ -43,8 +49,9 @@ model User {
 
   refreshTokenHash  String?
 
-  memberships Membership[]
-  invitations Invitation[]
+  memberships       Membership[]
+  invitations       Invitation[]
+  authIdentities    AuthIdentity[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -103,4 +110,16 @@ model Invitation {
   organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("invitations")
+}
+
+model AuthIdentity {
+  provider            OAuthProvider @default(GOOGLE)
+  providerAccountId   String
+  userId              String
+
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("auth_identities")
 }

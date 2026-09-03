@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { adapter } from '@/common/prisma/prisma.adaptor';
-import { AppLogger } from '@/common/logger/logger.service'
+import { AppLogger } from '@/common/logger/logger.service';
 
 @Injectable()
 export class PrismaService
@@ -13,15 +13,15 @@ export class PrismaService
   }
 
   async onModuleInit() {
-  try {
-    await this.$connect();
-    this.logger.log('Prisma connected successfully');
-  } catch (e) {
+    try {
+      await this.$connect();
+      this.logger.log('Prisma connected successfully');
+    } catch (e) {
       this.logger.error('Prisma connection failed');
-      console.log(e)
-    throw e;
+      console.log(e);
+      throw e;
+    }
   }
-}
 
   async onModuleDestroy() {
     await this.$disconnect();

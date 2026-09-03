@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter'
-import { ValidationPipe, BadRequestException } from '@nestjs/common'
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor'
+import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { AppLogger } from '@/common/logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
@@ -19,10 +19,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  
-  app.useGlobalFilters(
-    new GlobalExceptionFilter(logger),
-  )
+  app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
   app.use(cookieParser());
 
@@ -39,19 +36,15 @@ async function bootstrap() {
           message: errors.flatMap((error) =>
             Object.values(error.constraints ?? {}),
           ),
-        })
+        });
       },
     }),
-  )
+  );
 
-  app.useGlobalInterceptors(
-    new ResponseInterceptor(),
-  )
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   await app.listen(process.env.PORT ?? 3000);
 
-  logger.log(
-    `Server running on port ${config.get<number>('app.port')}`,
-  )
+  logger.log(`Server running on port ${config.get<number>('app.port')}`);
 }
 bootstrap();

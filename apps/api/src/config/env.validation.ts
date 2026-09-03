@@ -1,4 +1,4 @@
-import * as Joi from 'joi'
+import * as Joi from 'joi';
 
 export const envValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
@@ -28,4 +28,4 @@ export const envValidationSchema = Joi.object({
   JWT_REFRESH_EXPIRES_IN_SHORT: Joi.string().required(),
 
   JWT_REFRESH_EXPIRES_IN_LONG: Joi.string().required(),
-})
+});

@@ -14,13 +14,10 @@ export class RoleGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(
-      ROLES_KEY,
-      [
-        context.getHandler(),
-        context.getClass(),
-      ],
-    );
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     // No @Roles() decorator → allow access
     if (!requiredRoles) {
@@ -39,7 +36,7 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException('User role not found');
     }
 
-    if(user.systemRole == SystemRole.SUPERADMIN) {
+    if (user.systemRole == SystemRole.SUPERADMIN) {
       return true;
     }
 

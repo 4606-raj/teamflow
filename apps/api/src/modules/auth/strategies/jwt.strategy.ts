@@ -6,25 +6,25 @@ import { SystemRole } from '@prisma/client';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(configService: ConfigService) {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: configService.get('JWT_ACCESS_SECRET'),
-        });
+  constructor(configService: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: configService.get('JWT_ACCESS_SECRET'),
+    });
+  }
+
+  async validate(payload: any) {
+    if (!payload?.sub) {
+      throw new UnauthorizedException();
     }
 
-    async validate(payload: any) {
-        if(!payload?.sub) {
-            throw new UnauthorizedException();
-        }
-
-        return { 
-            userId: payload.sub,
-            email: payload.email,
-            organizationId: payload.organizationId,
-            role: payload.role,
-            permissions: payload.permissions,
-            systemRole: SystemRole
-        };
-    }
+    return {
+      userId: payload.sub,
+      email: payload.email,
+      organizationId: payload.organizationId,
+      role: payload.role,
+      permissions: payload.permissions,
+      systemRole: payload.systemRole,
+    };
+  }
 }

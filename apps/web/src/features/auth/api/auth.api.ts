@@ -20,4 +20,12 @@ export const authApi = {
   logout() {
     return api.post('/auth/logout')
   },
+
+  refresh(): Promise<{ data: { accessToken: string } }> {
+    return api.post(
+        `${import.meta.env.VITE_API_URL}/auth/refresh`,
+        {},
+        { withCredentials: true, skipAuthRefresh: true }
+      )
+  }
 }

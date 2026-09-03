@@ -27,7 +27,25 @@ export interface User {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  avatar: string | null;
   systemRole: SystemRole;
   organizations?: Organization[];
   invitations?: Invitation[];
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+  remember?: boolean;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface CreateOrganizationRequest {
+  name: string;
 }

@@ -6,50 +6,64 @@ import { MembershipRole } from '@prisma/client/index-browser';
 
 @Injectable()
 export class OrganizationsService {
-    constructor(
-        private readonly organizationRepository: OrganizationRepository,
-        private readonly authService: AuthService
+  constructor(
+    private readonly organizationRepository: OrganizationRepository,
+    private readonly authService: AuthService,
+  ) {}
 
-    ) {}
-    
-    create(userId: string, data: CreateOrganizationDto) {
-        return this.organizationRepository.createWithMembership(userId, data);
+  create(userId: string, data: CreateOrganizationDto) {
+    return this.organizationRepository.createWithMembership(userId, data);
+  }
+
+  getAllOwn(userId: string) {
+    return this.organizationRepository.getAllForUser(userId);
+  }
+
+  async switchOrganization(
+    userId: string,
+    email: string,
+    organizationId: string,
+  ) {
+    const membership = await this.organizationRepository.findMembership(
+      userId,
+      organizationId,
+    );
+
+    if (!membership) {
+      throw new ForbiddenException('You are not a member of this organization');
     }
 
-    getAllOwn(userId: string) {
-        return this.organizationRepository.getAllForUser(userId);
+    return this.authService.generateTokens(
+      userId,
+      email,
+      organizationId,
+      membership.role,
+    );
+  }
+
+  async addMember(userId: string, email: string, organizationId: string) {
+    const membership = await this.organizationRepository.findMembership(
+      userId,
+      organizationId,
+    );
+
+    if (membership) {
+      throw new ForbiddenException(
+        'You are already a member of this organization',
+      );
     }
 
-    async switchOrganization(userId: string, email: string, organizationId: string) {
-        
-        const membership = await this.organizationRepository.findMembership(userId, organizationId);
+    this.organizationRepository.addMemberToOrganization(
+      userId,
+      organizationId,
+      MembershipRole.MEMBER,
+    );
 
-        if(!membership) {
-            throw new ForbiddenException("You are not a member of this organization");
-        }
-
-        return this.authService.generateTokens(
-            userId,
-            email,
-            organizationId,
-            membership.role
-        );
-    }
-
-    async addMember(userId: string, email: string, organizationId: string) {
-        const membership = await this.organizationRepository.findMembership(userId, organizationId);
-
-        if(membership) {
-            throw new ForbiddenException("You are already a member of this organization");
-        }
-
-        this.organizationRepository.addMemberToOrganization(userId, organizationId, MembershipRole.MEMBER);
-
-        return this.authService.generateTokens(
-            userId,
-            email,
-            organizationId,
-            MembershipRole.MEMBER
-        );
-    }
+    return this.authService.generateTokens(
+      userId,
+      email,
+      organizationId,
+      MembershipRole.MEMBER,
+    );
+  }
 }

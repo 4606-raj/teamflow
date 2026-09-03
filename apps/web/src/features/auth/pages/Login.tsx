@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginSchema } from '@/features/auth';
 import { useAuthStore, authApi } from '@/features/auth';
+import { useOAuthPopup } from '../hooks/use-oauth-popup';
 import { Button, Card, CardContent, CardHeader, Checkbox, Input, Label } from '@/shared/components/ui';
 
 export default function Login() {
@@ -13,7 +14,12 @@ export default function Login() {
   const navigate = useNavigate()
   const login = useAuthStore(state => state.login)
   const me = useAuthStore(state => state.fetchCurrentUser);
+  const { openPopup: openGooglePopup, isLoading: isGoogleLoading, error: googleLoginError } = useOAuthPopup('google');
   // const user = useAuthStore(state => state.user)
+
+  const handleGoogleLogin = () => {
+    openGooglePopup();
+  };
   
   const {
     register,
@@ -189,9 +195,16 @@ export default function Login() {
               type="button"
               variant="outline"
               className="w-full"
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading}
             >
-              Continue with Google
+              {isGoogleLoading ? 'Signing in...' : 'Continue with Google'}
             </Button>
+            {googleLoginError && (
+              <p className="text-center text-sm text-destructive">
+                {googleLoginError}
+              </p>
+            )}
 
             {/* Register */}
             <p className="text-center text-sm text-muted-foreground">

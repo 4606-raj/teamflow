@@ -106,7 +106,6 @@ export default function Onboarding() {
 
     const invitations = user.invitations ?? [];
     const handleInvitation = async (invitation: Invitation, accepted: boolean) => {
-        console.log(invitation)
         if (!invitation.token) return;
 
         setPendingToken(invitation.token);
