@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
@@ -102,7 +102,14 @@ export default function Onboarding() {
     const user = useAuthStore((state) => state.user);
     const [pendingToken, setPendingToken] = useState<string | null>(null);
 
+    useEffect(() => {
+        if(user?.organizations?.length) {
+            navigate('/')
+        }
+    }, [user, navigate])
+
     if (!user) return null;
+
 
     const invitations = user.invitations ?? [];
     const handleInvitation = async (invitation: Invitation, accepted: boolean) => {

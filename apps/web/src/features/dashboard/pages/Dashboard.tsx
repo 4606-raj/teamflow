@@ -3,15 +3,24 @@ import { useEffect } from 'react';
 import { ArrowUpRight, CheckCircle2, Clock3, ListTodo, Plus, type LucideIcon } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui';
 import { DashboardShell } from '../components/DashboardShell';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
     const logout = useAuthStore(state => state.logout);
-    const me = useAuthStore(state => state.fetchCurrentUser);
+    // const me = useAuthStore(state => state.fetchCurrentUser);
     const user = useAuthStore(state => state.user);
 
+    const navigate = useNavigate()
+
     useEffect(() => {
-        me();
-    }, [me]);
+        if(!user?.organizations?.length) {
+            navigate('/onboarding')
+        }
+    }, [user, navigate])
+
+    // useEffect(() => {
+    //     me();
+    // }, [me]);
 
     if (!user) return null;
 
