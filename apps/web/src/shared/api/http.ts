@@ -29,7 +29,7 @@ http.interceptors.response.use(
     const message =
       error.response?.data?.message ||
       error.message ||
-      'Something went wrong'
+      'Something went wrong, Please try again after sometime'
 
     toast.error(
       Array.isArray(message) ? message[0] : message

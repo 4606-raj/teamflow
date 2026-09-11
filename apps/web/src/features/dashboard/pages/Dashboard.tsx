@@ -2,7 +2,7 @@ import { useAuthStore } from '@/features/auth';
 import { useEffect } from 'react';
 import { ArrowUpRight, CheckCircle2, Clock3, ListTodo, Plus, type LucideIcon } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui';
-import { DashboardShell } from '../components/DashboardShell';
+import { DashboardShell } from '@/shared/layouts/DashboardShell';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -80,7 +80,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent className="grid gap-2">
                             <Button type="button" variant="outline" className="justify-start"><Plus aria-hidden="true" /> Create a task</Button>
-                            <Button type="button" variant="outline" className="justify-start"><ListTodo aria-hidden="true" /> Browse projects</Button>
+                            <Button type="button" variant="outline" className="justify-start" onClick={() => navigate('/projects')}><ListTodo aria-hidden="true" /> Browse projects</Button>
                             <Button type="button" variant="outline" className="justify-start"><ArrowUpRight aria-hidden="true" /> Invite teammates</Button>
                         </CardContent>
                     </Card>
