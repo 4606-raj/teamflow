@@ -24,7 +24,20 @@ http.interceptors.request.use((config) => {
 })
 
 http.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    if (
+      response.data &&
+      typeof response.data === 'object' &&
+      'data' in response.data
+    ) {
+      return {
+        ...response,
+        data: response.data.data,
+      }
+    }
+
+    return response
+  },
   (error) => {
     const message =
       error.response?.data?.message ||

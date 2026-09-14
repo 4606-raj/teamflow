@@ -1,10 +1,17 @@
-import { useEffect } from "react";
-import { authApi } from "../api/auth.api";
+import { useEffect, useRef } from "react";
 import type { OAuthProvider } from "../hooks/use-oauth-popup";
 
 export default function GoogleCallbackPage () {
+  const hasNotifiedOpener = useRef(false);
+
   useEffect(() => {
-    const completeLogin = async () => {
+    if (hasNotifiedOpener.current) {
+      return;
+    }
+
+    hasNotifiedOpener.current = true;
+
+    const notifyOpener = () => {
       const providerParam = new URLSearchParams(window.location.search).get('provider');
       const provider: OAuthProvider | null =
         providerParam === 'google' ||
@@ -17,30 +24,17 @@ export default function GoogleCallbackPage () {
         return;
       }
 
-      try {
-        await authApi.refresh();
-
-        if (window.opener && !window.opener.closed) {
-          window.opener.postMessage(
-            { type: 'oauth-success', provider },
-            window.location.origin,
-          );
-          window.close();
-          return;
-        }
-      } catch {
-        if (window.opener && !window.opener.closed) {
-          window.opener.postMessage(
-            { type: 'oauth-error', provider },
-            window.location.origin,
-          );
-          window.close();
-        }
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage(
+          { type: 'oauth-success', provider },
+          '*',
+        );
+        window.close();
       }
     };
 
-    void completeLogin();
-  }, []);
+    notifyOpener();
+  }, [hasNotifiedOpener]);
 
   return <div>Signing you in...</div>;
 };

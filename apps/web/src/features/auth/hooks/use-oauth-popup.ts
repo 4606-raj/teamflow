@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
@@ -20,6 +20,7 @@ export function useOAuthPopup(provider: OAuthProvider) {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
   const logout = useAuthStore((state) => state.logout);
+  const popupRef = useRef<Window | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,14 +41,16 @@ export function useOAuthPopup(provider: OAuthProvider) {
       return;
     }
 
+    popupRef.current = popup;
     setIsLoading(true);
   }, [provider]);
 
   useEffect(() => {
     const handleOAuthMessage = async (event: MessageEvent<OAuthMessage>) => {
-      if (event.origin !== window.location.origin) return;
+      if (event.source !== popupRef.current) return;
       if (event.data?.provider !== provider) return;
 
+      popupRef.current = null;
       setIsLoading(false);
 
       if (event.data.type === 'oauth-error') {

@@ -1,31 +1,16 @@
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { AppLogger } from '@/common/logger/logger.service';
-import * as bcrypt from 'bcrypt';
-import { SystemRole } from '@prisma/client';
+import { seedAdmin } from './seeders/admin.seeder';
+import { seedTags } from './seeders/tags.seeder';
+import { seedTechnologies } from './seeders/technologies.seeder';
 
 const prisma = new PrismaService(new AppLogger());
 
 async function main() {
   await prisma.$connect();
-
-  const password = await bcrypt.hash('Admin@123', 10);
-  const systemRole = SystemRole.SUPERADMIN;
-
-  await prisma.user.upsert({
-    where: {
-      email: 'super-admin@test.com',
-    },
-    update: {},
-    create: {
-      firstName: 'Super',
-      lastName: 'Admin',
-      email: 'super-admin@test.com',
-      systemRole,
-      password,
-    },
-  });
-
-  console.log('Super admin seeded successfully');
+  await seedAdmin(prisma);
+  await seedTags(prisma);
+  await seedTechnologies(prisma);
 }
 
 main()

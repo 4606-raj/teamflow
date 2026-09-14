@@ -4,8 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client-js"
-  moduleFormat  = "cjs" // Crucial for NestJS compatibility
+  provider     = "prisma-client-js"
+  moduleFormat = "cjs" // Crucial for NestJS compatibility
 }
 
 datasource db {
@@ -34,92 +34,174 @@ enum OAuthProvider {
   LOCAL
 }
 
+enum ProjectStatus {
+  ACTIVE
+  INACTIVE
+  PLANNING
+  INPROGRESS
+  COMPLETE
+  CANCELED
+}
+
+enum ProjectMemberRole {
+  Guest
+  Client
+  Developer
+  Maintainer
+  Admin
+}
+
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  password    String
-  
-  firstName   String?
-  lastName    String?
-  avatar      String?
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
 
-  systemRole  SystemRole @default(USER)
-  
-  isActive    Boolean  @default(true)
+  firstName String?
+  lastName  String?
+  avatar    String?
 
-  refreshTokenHash  String?
+  systemRole SystemRole @default(USER)
 
-  memberships       Membership[]
-  invitations       Invitation[]
-  authIdentities    AuthIdentity[]
+  isActive Boolean @default(true)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  refreshTokenHash String?
+
+  memberships    Membership[]
+  invitations    Invitation[]
+  authIdentities AuthIdentity[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  projectUsers ProjectUser[]
 
   @@map("users")
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
 
   memberships Membership[]
   invitations Invitation[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("organizations")
 }
 
 model Membership {
-  id          String   @id @default(cuid())
-  userId      String
+  id             String @id @default(cuid())
+  userId         String
   organizationId String
 
-  role        MembershipRole @default(MEMBER)
+  role MembershipRole @default(MEMBER)
 
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@unique([userId, organizationId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@unique([userId, organizationId])
   @@index([userId])
   @@index([organizationId])
-  
   @@map("memberships")
-
 }
 
 model Invitation {
-  id              String   @id @default(cuid())
-  email           String
-  organizationId  String
-  role            MembershipRole @default(MEMBER)
-  token           String?
-  status          InvitationStatus @default(PENDING)
-  user            User @relation(fields: [email], references: [email])
-  expiresAt       DateTime
-  createdBy       String
-  createdAt       DateTime @default(now())
+  id             String           @id @default(cuid())
+  email          String
+  organizationId String
+  role           MembershipRole   @default(MEMBER)
+  token          String?
+  status         InvitationStatus @default(PENDING)
+  user           User             @relation(fields: [email], references: [email])
+  expiresAt      DateTime
+  createdBy      String
+  createdAt      DateTime         @default(now())
 
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("invitations")
 }
 
 model AuthIdentity {
-  provider            OAuthProvider @default(GOOGLE)
-  providerAccountId   String
-  userId              String
+  provider          OAuthProvider @default(GOOGLE)
+  providerAccountId String
+  userId            String
 
-  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
-  @@map("auth_identities")
+  @@map("auth_identity")
+}
+
+model Tag {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  projectTags ProjectTag[]
+
+  @@map("tags")
+}
+
+model Technology {
+  id                  String              @id @default(cuid())
+  name                String              @unique
+  MetaData            Json
+  projectTechnologies ProjectTechnology[]
+
+  @@map("technologies")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  color       String        @default("#00a6f4")
+
+  techStack ProjectTechnology[]
+  tags      ProjectTag[]
+  members   ProjectUser[]
+
+  createdAt DateTime @default(now())
+
+  @@map("projects")
+}
+
+model ProjectTechnology {
+  projectId    String
+  technologyId String
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, technologyId])
+  @@map("project_technology")
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+  @@map("project_tag")
+}
+
+model ProjectUser {
+  projectId String
+  userId    String
+  role      ProjectMemberRole
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@map("project_user")
 }

@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { InvitationsModule } from './modules/invitations/invitations.module';
     UsersModule,
     OrganizationsModule,
     InvitationsModule,
+    ProjectsModule,
   ],
 
   controllers: [AppController],
