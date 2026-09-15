@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { CreateInvitationDto } from './dto/create-invitation.dto';
+import { type CreateInvitationSchema } from '@teamflow/types';
 import { InvitationsRepository } from './repositories/invitations.repository';
 import { InvitationStatus, MembershipRole } from '@prisma/client';
 import { OrganizationsService } from '../organizations/organizations.service';
@@ -16,7 +16,7 @@ export class InvitationsService {
   async create(
     userId: string,
     organizationId: string,
-    dto: CreateInvitationDto,
+    dto: CreateInvitationSchema,
   ) {
     const user = await this.usersService.findByEmail(dto.email);
 

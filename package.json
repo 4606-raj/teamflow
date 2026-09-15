@@ -18,6 +18,9 @@
     }
   },
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "devDependencies": {
     "concurrently": "^10.0.0",
     "turbo": "^2.9.14",

@@ -24,6 +24,9 @@
       "@/*": ["./src/*"]
     }
   },
+  "ts-node": {
+    "experimentalResolver": true
+  },
   "exclude": [
     "**/*.spec.ts",
     "node_modules",

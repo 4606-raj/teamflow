@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginSchema } from '@/features/auth';
+import { loginSchema, type LoginSchema } from '@teamflow/types';
 import { useAuthStore, authApi } from '@/features/auth';
 import { useOAuthPopup } from '../hooks/use-oauth-popup';
 import { Button, Card, CardContent, CardHeader, Checkbox, Input, Label } from '@/shared/components/ui';

@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
-import { CreateInvitationDto } from './dto/create-invitation.dto';
+import { type CreateInvitationSchema } from '@teamflow/types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -18,7 +18,7 @@ export class InvitationsController {
   constructor(public readonly invitationsService: InvitationsService) {}
 
   @Post('/')
-  create(@Req() req, @Body() dto: CreateInvitationDto) {
+  create(@Req() req, @Body() dto: CreateInvitationSchema) {
     return this.invitationsService.create(
       req.user.userId,
       req.user.organizationId,

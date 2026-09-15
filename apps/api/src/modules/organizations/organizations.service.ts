@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, Req } from '@nestjs/common';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
+import { type CreateOrganizationSchema } from '@teamflow/types';
 import { OrganizationRepository } from './repositories/organization.repository';
 import { AuthService } from '../auth/auth.service';
 import { MembershipRole } from '@prisma/client/index-browser';
@@ -11,7 +11,7 @@ export class OrganizationsService {
     private readonly authService: AuthService,
   ) {}
 
-  create(userId: string, data: CreateOrganizationDto) {
+  create(userId: string, data: CreateOrganizationSchema) {
     return this.organizationRepository.createWithMembership(userId, data);
   }
 

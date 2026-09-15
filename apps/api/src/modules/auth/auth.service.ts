@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import type { RegisterDto } from './dto/register.dto';
+import type { RegisterSchema } from '@teamflow/types';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MembershipRole, OAuthProvider, SystemRole } from '@prisma/client';
-import type { LoginDto } from './dto/login.dto';
+import type { LoginSchema } from '@teamflow/types';
 import { OrganizationRepository } from '../organizations/repositories/organization.repository';
 import { Permission } from '@/common/enums/permission.enum';
 import { ROLE_PERMISSIONS } from '@/common/rbac/role-permissions';
@@ -25,8 +25,11 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  async register(data: RegisterDto, res: Response) {
-    const user = await this.usersService.create(data);
+  async register(data: RegisterSchema, res: Response) {
+
+    const {confirmPassword, ...dto} = data
+
+    const user = await this.usersService.create(dto);
     const tokens = await this.generateTokens(user.id, user.email);
 
     // store hashed refresh token in DB
@@ -37,7 +40,7 @@ export class AuthService {
     return { user, accessToken: tokens.accessToken };
   }
 
-  async login(data: LoginDto, res: Response) {
+  async login(data: LoginSchema, res: Response) {
     const user = await this.usersService.findByEmail(data.email);
 
     if (!user) {

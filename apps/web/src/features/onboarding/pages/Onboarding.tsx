@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Building2, Check, LogOut, Mail, Plus, Sparkles, Users } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, Input, Label } from '@/shared/components/ui';
-import { type CreateOrganizationSchema, createOrganizationSchema } from '@/features/organizaions';
+import { type CreateOrganizationSchema, createOrganizationSchema } from '@teamflow/types';
 import { organizationApi } from '@/features/organizaions/api/organizations.api';
 import { useAuthStore } from '@/features/auth';
 import type { Invitation } from '@teamflow/types';

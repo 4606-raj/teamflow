@@ -1,17 +1,31 @@
-import { z } from "zod";
-import { ProjectStatus } from "@prisma/client";
-import { ProjectMemberRole } from "@prisma/client";
+import { z } from 'zod';
+import { ProjectMemberRole, ProjectStatus } from '@prisma/client';
+import { projectCreateSchema } from '@teamflow/types';
 
-export const ProjectCreateSchema = z.object({
- 	name: z.string().min(3, 'Please provide a valid name for the project'),
- 	description: z.string().optional(),
- 	status: z.enum(ProjectStatus, 'Please provide a valid status for the project'),
- 	color: z.string().regex(/^#?([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/, {
-	    message: "Invalid HEX color format. Must be a valid 3 or 6 digit hex code."}),
+const prismaProjectStatusValues = Object.values(ProjectStatus) as [
+  ProjectStatus,
+  ...ProjectStatus[],
+];
 
- 	tags: z.array(z.string().cuid()),
- 	techStack: z.array(z.string().cuid()),
- 	members: z.array(z.object({id: z.string().cuid(), role: z.nativeEnum(ProjectMemberRole)})),
+const prismaProjectMemberRoleValues = Object.values(ProjectMemberRole) as [
+  ProjectMemberRole,
+  ...ProjectMemberRole[],
+];
+
+export const ProjectCreateSchema = projectCreateSchema.extend({
+  status: z.enum(prismaProjectStatusValues, {
+    message: 'Please provide a valid status for the project',
+  }),
+  members: z
+    .array(
+      z.object({
+        id: z.string().cuid('Please provide a valid member id'),
+        role: z.enum(prismaProjectMemberRoleValues, {
+          message: 'Please provide a valid role for the project member',
+        }),
+      }),
+    )
+    .default([]),
 });
 
-export type projectCreateInput = z.infer<typeof ProjectCreateSchema>
+export type projectCreateInput = z.infer<typeof ProjectCreateSchema>;

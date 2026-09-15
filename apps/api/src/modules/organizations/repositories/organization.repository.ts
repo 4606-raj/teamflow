@@ -1,13 +1,13 @@
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { MembershipRole } from '@prisma/client';
-import { CreateOrganizationDto } from '../dto/create-organization.dto';
+import { CreateOrganizationSchema } from '@teamflow/types';
 
 @Injectable()
 export class OrganizationRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createWithMembership(userId: string, data: CreateOrganizationDto) {
+  async createWithMembership(userId: string, data: CreateOrganizationSchema) {
     const exists = await this.prisma.organization.findUnique({
       where: { slug: data.name },
     });

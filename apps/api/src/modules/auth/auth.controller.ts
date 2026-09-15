@@ -10,11 +10,11 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { registerSchema, type RegisterDto } from './dto/register.dto';
+import { registerSchema, type RegisterSchema } from '@teamflow/types';
+import { loginSchema, type LoginSchema } from '@teamflow/types';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { ConfigService } from '@nestjs/config/dist/config.service';
-import { loginSchema, type LoginDto } from './dto/login.dto';
 import { type Request, type Response } from 'express';
 import { ZodValidationPipe } from './zod-validation.pipe';
 import { AuthGuard } from '@nestjs/passport';
@@ -34,7 +34,7 @@ export class AuthController {
 
   @Post('register')
   register(
-    @Body(new ZodValidationPipe(registerSchema)) data: RegisterDto,
+    @Body(new ZodValidationPipe(registerSchema)) data: RegisterSchema,
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.register(data, res);
@@ -42,7 +42,7 @@ export class AuthController {
 
   @Post('login')
   login(
-    @Body(new ZodValidationPipe(loginSchema)) data: LoginDto,
+    @Body(new ZodValidationPipe(loginSchema)) data: LoginSchema,
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.login(data, res);

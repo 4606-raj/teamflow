@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterSchema } from '@/features/auth';
+import { registerSchema, type RegisterSchema } from '@teamflow/types';
 import { useAuthStore, authApi } from '@/features/auth';
 import { useOAuthPopup } from '../hooks/use-oauth-popup';
 import { Button, Card, CardContent, CardHeader, Input, Label } from '@/shared/components/ui';
@@ -35,9 +35,9 @@ export default function Register() {
   const onSubmit = async (data: RegisterSchema) => {
 
     try {
-      const { email, password, firstName, lastName } = data;
-      const registerData = { email, password, firstName, lastName };
-      const response = await authApi.register(registerData)
+      // const { email, password, firstName, lastName } = data;
+      // const registerData = { email, password, confirmPassword, firstName, lastName };
+      const response = await authApi.register(data)
       
       login(response.data.user, response.data.accessToken);
 

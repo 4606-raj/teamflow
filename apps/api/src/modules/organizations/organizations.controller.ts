@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
+import { type CreateOrganizationSchema } from '@teamflow/types';
 import { OrganizationsService } from './organizations.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { SwitchOrganizationDto } from './dto/switch-organization.dto';
+import { type SwitchOrganizationSchema } from '@teamflow/types';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { PermissionGuard } from '@/modules/auth/guards/permission.guard';
 import { Permission } from '@/common/enums/permission.enum';
@@ -15,7 +15,7 @@ export class OrganizationsController {
 
   // @Permissions(Permission.ORGANIZATION_CREATE)
   @Post('/')
-  create(@Req() req, @Body() data: CreateOrganizationDto) {
+  create(@Req() req, @Body() data: CreateOrganizationSchema) {
     return this.organizationService.create(req.user.userId, data);
   }
 
@@ -26,7 +26,7 @@ export class OrganizationsController {
   }
 
   @Post('/switch')
-  joinOrganization(@Req() req, @Body() dto: SwitchOrganizationDto) {
+  joinOrganization(@Req() req, @Body() dto: SwitchOrganizationSchema) {
     return this.organizationService.switchOrganization(
       req.user.userId,
       req.user.email,
