@@ -16,6 +16,7 @@ import {
 import { Button, Input } from '@/shared/components/ui';
 import { cn } from '@/shared/utils/cn';
 import type { User } from '@teamflow/types';
+import { useAuthStore } from '@/features/auth';
 
 const navigation = [
     { label: 'Overview', href: '/', icon: LayoutDashboard },
@@ -34,7 +35,7 @@ function UserAvatar({ user }: { user: User }) {
     );
 }
 
-function Sidebar({ user, onLogout, onClose }: { user: User; onLogout: () => void; onClose?: () => void }) {
+function Sidebar({ user, onLogout, onClose }: { user: User | null; onLogout: () => void; onClose?: () => void }) {
     const organization = user.organizations?.[0] ?? null;
 
     return (
@@ -111,7 +112,7 @@ function Sidebar({ user, onLogout, onClose }: { user: User; onLogout: () => void
     );
 }
 
-function Header({ user, onMenuClick }: { user: User; onMenuClick: () => void }) {
+function Header({ user, onMenuClick }: { user: User | null; onMenuClick: () => void }) {
     return (
         <header className="flex h-16 items-center gap-3 border-b bg-background px-4 sm:px-6">
             <Button type="button" variant="ghost" size="icon-sm" className="lg:hidden" onClick={onMenuClick} aria-label="Open menu">
@@ -144,19 +145,22 @@ function Footer() {
     );
 }
 
-export function DashboardShell({ user, onLogout, children }: { user: User; onLogout: () => void; children: ReactNode }) {
+export function DashboardShell({ children }: { children: ReactNode }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const user = useAuthStore((state) => state.user);
+    const logout = useAuthStore((state) => state.logout);
 
     return (
         <div className="flex min-h-screen bg-muted/20">
             <div className="hidden lg:block">
-                <Sidebar user={user} onLogout={onLogout} />
+                <Sidebar user={user} onLogout={logout} />
             </div>
             {isMenuOpen && (
                 <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setIsMenuOpen(false)} aria-hidden="true" />
             )}
             <div className={cn('fixed inset-y-0 left-0 z-50 transition-transform lg:hidden', isMenuOpen ? 'translate-x-0' : '-translate-x-full')}>
-                <Sidebar user={user} onLogout={onLogout} onClose={() => setIsMenuOpen(false)} />
+                <Sidebar user={user} onLogout={logout} onClose={() => setIsMenuOpen(false)} />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
                 <Header user={user} onMenuClick={() => setIsMenuOpen(true)} />

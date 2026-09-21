@@ -13,6 +13,7 @@ import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { LookupsModule } from './modules/lookups/lookups.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
     OrganizationsModule,
     InvitationsModule,
     ProjectsModule,
+    LookupsModule,
   ],
 
   controllers: [AppController],

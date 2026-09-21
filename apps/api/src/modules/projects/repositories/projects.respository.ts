@@ -1,15 +1,20 @@
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { type projectCreateInput } from '../dto/create-project.dto';
 import { Injectable } from "@nestjs/common";
+import { projectResponseSelect } from '../types/projects.types';
 
 @Injectable()
 export class ProjectRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async create(data: projectCreateInput) {
-		try {
+	async getAll() {
+		return await this.prisma.project.findMany({
+						  select: projectResponseSelect
+						})
+	}
 
-			const project = this.prisma.project.create({
+	async create(data: projectCreateInput) {
+		return this.prisma.project.create({
 				data: {
 					name: data.name,
 					description: data.description,
@@ -48,19 +53,7 @@ export class ProjectRepository {
 					} : undefined,
 				},
 
-				include: {
-					techStack: {
-						include: {
-							technology: true
-						}
-					}
-				},
-			})
-
-			return project;
-		}
-		catch(e) {
-			throw e;
-		}
+				select: projectResponseSelect,
+			});
 	}
 }

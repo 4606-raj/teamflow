@@ -1,86 +1,53 @@
 import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { type Project } from '@teamflow/types';
 import { BriefcaseBusiness, CalendarDays, FolderKanban, Plus, Search, Users } from 'lucide-react';
 import { useAuthStore } from '@/features/auth';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@/shared/components/ui';
 import { DashboardShell } from '@/shared/layouts/DashboardShell';
+import { useNavigate } from 'react-router-dom';
+import { projectApi } from '../api/projects.api';
 
-type ProjectStatus = 'Active' | 'Planning' | 'Completed';
-
-type Project = {
-    id: string;
-    name: string;
-    description: string;
-    status: ProjectStatus;
-    tasks: number;
-    completedTasks: number;
-    members: number;
-    dueDate: string;
-    color: string;
-};
-
-const projects: Project[] = [
-    {
-        id: 'website-redesign',
-        name: 'Website redesign',
-        description: 'Refresh the marketing site and improve the customer journey.',
-        status: 'Active',
-        tasks: 24,
-        completedTasks: 16,
-        members: 6,
-        dueDate: 'Jun 28, 2026',
-        color: 'bg-sky-500',
-    },
-    {
-        id: 'mobile-app',
-        name: 'Mobile app',
-        description: 'Build the first mobile experience for customers on the go.',
-        status: 'Planning',
-        tasks: 12,
-        completedTasks: 3,
-        members: 4,
-        dueDate: 'Jul 18, 2026',
-        color: 'bg-violet-500',
-    },
-    {
-        id: 'team-onboarding',
-        name: 'Team onboarding',
-        description: 'Create a smooth onboarding flow for new team members.',
-        status: 'Completed',
-        tasks: 18,
-        completedTasks: 18,
-        members: 3,
-        dueDate: 'May 30, 2026',
-        color: 'bg-emerald-500',
-    },
-];
-
-const statusFilters = ['All', 'Active', 'Planning', 'Completed'] as const;
+const statusFilters = ['All', 'Active', 'Inactive', 'Planning', 'In progress', 'Complete', 'Canceled'] as const;
 type StatusFilter = (typeof statusFilters)[number];
+
+function formatStatus(status: Project['status']) {
+    return status === 'INPROGRESS'
+        ? 'In progress'
+        : status.charAt(0) + status.slice(1).toLowerCase();
+}
 
 export default function Projects() {
     const user = useAuthStore((state) => state.user);
-    const logout = useAuthStore((state) => state.logout);
+    const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [status, setStatus] = useState<StatusFilter>('All');
+
+    const { data: response, isLoading, isError } = useQuery({
+        queryKey: ['projects'],
+        queryFn: projectApi.list,
+    });
+
+    const projects = response?.data ?? [];
 
     const filteredProjects = useMemo(() => {
         const normalizedQuery = query.trim().toLowerCase();
 
         return projects.filter((project) => {
-            const matchesStatus = status === 'All' || project.status === status;
+            const matchesStatus = status === 'All' || formatStatus(project.status) === status;
             const matchesQuery =
                 !normalizedQuery ||
                 project.name.toLowerCase().includes(normalizedQuery) ||
-                project.description.toLowerCase().includes(normalizedQuery);
+                project.description?.toLowerCase().includes(normalizedQuery);
 
             return matchesStatus && matchesQuery;
         });
-    }, [query, status]);
+    }, [projects, query, status]);
 
     if (!user) return null;
 
     return (
-        <DashboardShell user={user} onLogout={logout}>
+        <DashboardShell>
             <div className="mx-auto w-full max-w-7xl space-y-8 p-4 sm:p-6 lg:p-8">
                 <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>
@@ -88,7 +55,7 @@ export default function Projects() {
                         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">Projects</h1>
                         <p className="mt-2 text-muted-foreground">Plan, track, and deliver your team&apos;s work.</p>
                     </div>
-                    <Button type="button" className="w-full sm:w-auto">
+                    <Button type="button" className="w-full sm:w-auto" onClick={() => navigate('/projects/create')}>
                         <Plus aria-hidden="true" />
                         New project
                     </Button>
@@ -96,8 +63,8 @@ export default function Projects() {
 
                 <section aria-label="Project summary" className="grid gap-4 sm:grid-cols-3">
                     <SummaryCard label="Total projects" value={String(projects.length)} icon={FolderKanban} />
-                    <SummaryCard label="Active projects" value={String(projects.filter((project) => project.status === 'Active').length)} icon={BriefcaseBusiness} />
-                    <SummaryCard label="Completed projects" value={String(projects.filter((project) => project.status === 'Completed').length)} icon={CalendarDays} />
+                    <SummaryCard label="Active projects" value={String(projects.filter((project) => project.status === 'ACTIVE').length)} icon={BriefcaseBusiness} />
+                    <SummaryCard label="Completed projects" value={String(projects.filter((project) => project.status === 'COMPLETE').length)} icon={CalendarDays} />
                 </section>
 
                 <section className="space-y-4">
@@ -129,7 +96,15 @@ export default function Projects() {
                         </div>
                     </div>
 
-                    {filteredProjects.length > 0 ? (
+                    {isLoading ? (
+                        <Card>
+                            <CardContent className="px-6 py-16 text-center text-muted-foreground">Loading projects...</CardContent>
+                        </Card>
+                    ) : isError ? (
+                        <Card>
+                            <CardContent className="px-6 py-16 text-center text-destructive">Unable to load projects.</CardContent>
+                        </Card>
+                    ) : filteredProjects.length > 0 ? (
                         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                             {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
                         </div>
@@ -151,20 +126,22 @@ export default function Projects() {
 }
 
 function ProjectCard({ project }: { project: Project }) {
-    const completion = Math.round((project.completedTasks / project.tasks) * 100);
+    const tasks = 0;
+    const completedTasks = 0;
+    const completion = tasks > 0 ? Math.round((completedTasks / tasks) * 100) : 0;
 
     return (
         <Card className="transition-shadow hover:shadow-md">
             <CardHeader className="gap-4">
                 <div className="flex items-start justify-between gap-3">
-                    <div className={`flex size-10 items-center justify-center rounded-xl ${project.color} text-white`}>
+                    <div className="flex size-10 items-center justify-center rounded-xl text-white" style={{ backgroundColor: project.color ?? undefined }}>
                         <FolderKanban aria-hidden="true" className="size-5" />
                     </div>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">{project.status}</span>
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">{formatStatus(project.status)}</span>
                 </div>
                 <div>
                     <CardTitle>{project.name}</CardTitle>
-                    <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{project.description}</p>
+                    <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{project.description || 'No description available.'}</p>
                 </div>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -178,12 +155,12 @@ function ProjectCard({ project }: { project: Project }) {
                     </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{project.completedTasks} of {project.tasks} tasks</span>
-                    <span className="flex items-center gap-1.5"><CalendarDays aria-hidden="true" className="size-3.5" />{project.dueDate}</span>
+                    <span>{tasks > 0 ? `${completedTasks} of ${tasks} tasks` : 'Tasks unavailable'}</span>
+                    <span className="flex items-center gap-1.5"><CalendarDays aria-hidden="true" className="size-3.5" />Date unavailable</span>
                 </div>
                 <div className="flex items-center gap-1.5 border-t pt-4 text-xs text-muted-foreground">
                     <Users aria-hidden="true" className="size-3.5" />
-                    {project.members} {project.members === 1 ? 'member' : 'members'}
+                    {project.members.length} {project.members.length === 1 ? 'member' : 'members'}
                 </div>
             </CardContent>
         </Card>
