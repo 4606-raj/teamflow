@@ -10,6 +10,12 @@ export interface SelectOption {
 	value: string
 }
 
+export interface MemberOption {
+	id: string
+	name: string
+	email: string
+}
+
 const getLookupOptions = async (url: string): Promise<SelectOption[]> => {
 	const response = await api.get<LookupItem[]>(url)
 
@@ -26,5 +32,14 @@ export const lookupsApi = {
 
 	technologies(): Promise<SelectOption[]> {
 		return getLookupOptions('lookups/technologies')
+	},
+
+	members(): Promise<MemberOption[]> {
+		return api.get<{ user: { id: string; firstName: string | null; lastName: string | null; email: string } }[]>('organizations/members')
+			.then((response) => response.data.map(({ user }) => ({
+				id: user.id,
+				name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email,
+				email: user.email,
+			})))
 	}
 }

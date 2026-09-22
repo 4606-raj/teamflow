@@ -19,6 +19,10 @@ export class OrganizationsService {
     return this.organizationRepository.getAllForUser(userId);
   }
 
+  getMembers(organizationId: string) {
+    return this.organizationRepository.getMembers(organizationId);
+  }
+
   async switchOrganization(
     userId: string,
     email: string,

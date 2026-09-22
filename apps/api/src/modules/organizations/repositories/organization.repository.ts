@@ -60,6 +60,23 @@ export class OrganizationRepository {
     return data;
   }
 
+  async getMembers(organizationId: string) {
+    return this.prisma.membership.findMany({
+      where: { organizationId },
+      select: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { user: { firstName: 'asc' } },
+    });
+  }
+
   async findMembership(userId: string, organizationId: string) {
     return this.prisma.membership.findUnique({
       where: {

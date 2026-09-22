@@ -7,6 +7,7 @@ import { RoleGuard } from '../auth/guards/role.guard';
 import { PermissionGuard } from '@/modules/auth/guards/permission.guard';
 import { Permission } from '@/common/enums/permission.enum';
 import { Permissions } from '@/common/decorators/permissions.decorator';
+import { TenantGuard } from '../auth/guards/tenant.guard';
 
 @UseGuards(JwtAuthGuard, RoleGuard, PermissionGuard)
 @Controller('organizations')
@@ -23,6 +24,12 @@ export class OrganizationsController {
   @Get('/')
   getAllOwn(@Req() req) {
     return this.organizationService.getAllOwn(req.user.userId);
+  }
+
+  @UseGuards(TenantGuard)
+  @Get('/members')
+  getMembers(@Req() req) {
+    return this.organizationService.getMembers(req.user.organizationId);
   }
 
   @Post('/switch')
