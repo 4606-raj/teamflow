@@ -3,12 +3,14 @@ import { ArrowLeft } from "lucide-react"
 import { PROJECT_COLORS } from "@teamflow/types"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui"
 import { DashboardShell } from "@/shared/layouts/DashboardShell"
-import { useCreateProject } from "../hooks/use-project"
 import { ProjectForm, type ProjectFormValues } from "../components/ProjectForm"
 import { ProjectPreview } from "../components/ProjectPreview"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import { useGetOneProject, useUpdateProject } from "../hooks/use-project"
 
-export default function CreateProject() {
+export default function EditProject() {
+  const { projectId } = useParams<{ projectId: string }>();
+
   const [formValues, setFormValues] = useState<ProjectFormValues>({
     name: "",
     description: "",
@@ -18,15 +20,26 @@ export default function CreateProject() {
     techStack: [],
     members: [],
   })
-  const createProject = useCreateProject()
+  const projectQuery = useGetOneProject(projectId)
+  const updateProject = useUpdateProject(projectId ?? "")
   const navigate = useNavigate()
+
+  if (!projectId || projectQuery.isLoading) {
+    return <DashboardShell><div className="p-8 text-muted-foreground">Loading project...</div></DashboardShell>
+  }
+
+  if (projectQuery.isError || !projectQuery.data?.data) {
+    return <DashboardShell><div className="p-8 text-destructive">Unable to load project.</div></DashboardShell>
+  }
+
+  const project = projectQuery.data.data;
 
   return (
     <DashboardShell>
       <div className="mx-auto w-full max-w-7xl space-y-8 p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">Create project</h1>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">Edit project</h1>
           </div>
           <Button type="button" variant="outline" className="gap-2" onClick={() => navigate("/projects")}>
             <ArrowLeft aria-hidden="true" className="size-4" />
@@ -41,17 +54,26 @@ export default function CreateProject() {
             </CardHeader>
             <CardContent className="pb-6">
 
-              {/*Create Project Form*/}
               <ProjectForm
+                key={project.id}
+                defaultValues={{
+                  name: project.name,
+                  description: project.description ?? "",
+                  color: project.color ?? PROJECT_COLORS[0].value,
+                  status: project.status,
+                  tags: project.tags.map((tag) => tag.id),
+                  techStack: project.techStack.map((technology) => technology.id),
+                  members: project.members.map(({ id, role }) => ({ id, role })),
+                }}
                 onSubmit={async (data) => {
-                  await createProject.mutateAsync(data)
+                  await updateProject.mutateAsync(data)
                   navigate("/projects")
                 }}
                 onCancel={() => navigate("/projects")}
                 onValuesChange={setFormValues}
-                submitLabel="Create project"
-                pendingLabel="Creating..."
-                isPending={createProject.isPending}
+                submitLabel="Save changes"
+                pendingLabel="Saving..."
+                isPending={updateProject.isPending}
               />
             </CardContent>
           </Card>

@@ -14,6 +14,16 @@ export class ProjectsService {
 		return ProjectMapper.toResponseList(data);
 	}
 
+	async getOne(projectId: string) {
+		const data = await this.projectRepo.getOne(projectId);
+
+		if (!data) {
+			throw new NotFoundException('Project not found');
+		}
+
+		return ProjectMapper.toResponse(data);
+	}
+
 	async create(data: projectCreateInput, userId: string) {
 		try {
 			const members = [
@@ -25,13 +35,25 @@ export class ProjectsService {
 
 			return ProjectMapper.toResponse(project)
 		} catch (error) {
-			
 			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
 				throw new NotFoundException("User or related record not found");
 			}
 
 			throw error;
 		}
+	}
 
+	async update(projectId:string, data: projectCreateInput) {
+		try {
+			const project = await this.projectRepo.update(projectId, data);
+
+			return ProjectMapper.toResponse(project)
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+				throw new NotFoundException("User or related record not found");
+			}
+
+			throw error;
+		}
 	}
 }

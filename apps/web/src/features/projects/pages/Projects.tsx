@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { type Project } from '@teamflow/types';
-import { BriefcaseBusiness, CalendarDays, FolderKanban, Plus, Search, Users } from 'lucide-react';
+import { BriefcaseBusiness, CalendarDays, FolderKanban, Pencil, Plus, Search, Users } from 'lucide-react';
 import { useAuthStore } from '@/features/auth';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@/shared/components/ui';
 import { DashboardShell } from '@/shared/layouts/DashboardShell';
@@ -107,7 +107,7 @@ export default function Projects() {
                         </Card>
                     ) : filteredProjects.length > 0 ? (
                         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                            {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
+                            {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} onEdit={() => navigate(`/projects/${project.id}/edit`)} />)}
                         </div>
                     ) : (
                         <Card>
@@ -126,7 +126,7 @@ export default function Projects() {
     );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, onEdit }: { project: Project; onEdit: () => void }) {
     const tasks = 0;
     const completedTasks = 0;
     const completion = tasks > 0 ? Math.round((completedTasks / tasks) * 100) : 0;
@@ -138,7 +138,12 @@ function ProjectCard({ project }: { project: Project }) {
                     <div className="flex size-10 items-center justify-center rounded-xl text-white" style={{ backgroundColor: project.color ?? undefined }}>
                         <FolderKanban aria-hidden="true" className="size-5" />
                     </div>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">{formatStatus(project.status)}</span>
+                    <div className="flex items-center gap-1">
+                        <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">{formatStatus(project.status)}</span>
+                        <Button type="button" variant="ghost" size="icon-xs" className="text-muted-foreground" onClick={onEdit} aria-label={`Edit ${project.name}`}>
+                            <Pencil aria-hidden="true" />
+                        </Button>
+                    </div>
                 </div>
                 <div>
                     <CardTitle>{project.name}</CardTitle>
