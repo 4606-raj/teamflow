@@ -35,7 +35,7 @@ function UserAvatar({ user }: { user: User }) {
     );
 }
 
-function Sidebar({ user, onLogout, onClose }: { user: User | null; onLogout: () => void; onClose?: () => void }) {
+function Sidebar({ user, onLogout, onClose }: { user: User; onLogout: () => void; onClose?: () => void }) {
     const organization = user.organizations?.[0] ?? null;
 
     return (
@@ -112,7 +112,7 @@ function Sidebar({ user, onLogout, onClose }: { user: User | null; onLogout: () 
     );
 }
 
-function Header({ user, onMenuClick }: { user: User | null; onMenuClick: () => void }) {
+function Header({ user, onMenuClick }: { user: User; onMenuClick: () => void }) {
     return (
         <header className="flex h-16 items-center gap-3 border-b bg-background px-4 sm:px-6">
             <Button type="button" variant="ghost" size="icon-sm" className="lg:hidden" onClick={onMenuClick} aria-label="Open menu">
@@ -150,6 +150,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
     const user = useAuthStore((state) => state.user);
     const logout = useAuthStore((state) => state.logout);
+
+    if (!user) return null;
 
     return (
         <div className="flex min-h-screen bg-muted/20">

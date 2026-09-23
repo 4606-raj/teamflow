@@ -6,8 +6,6 @@ import { DashboardShell } from '@/shared/layouts/DashboardShell';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
-    const logout = useAuthStore(state => state.logout);
-    // const me = useAuthStore(state => state.fetchCurrentUser);
     const user = useAuthStore(state => state.user);
 
     const navigate = useNavigate()
@@ -33,7 +31,7 @@ export default function Dashboard() {
     }).format(new Date());
 
     return (
-        <DashboardShell user={user} onLogout={logout}>
+        <DashboardShell>
             <div className="mx-auto w-full max-w-7xl space-y-8 p-4 sm:p-6 lg:p-8">
                 <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>

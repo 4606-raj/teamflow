@@ -186,6 +186,7 @@ function SelectScrollDownButton({
   )
 }
 
+/* eslint-disable react-refresh/only-export-components */
 export {
   Select,
   SelectContent,
@@ -198,3 +199,4 @@ export {
   SelectTrigger,
   SelectValue,
 }
+/* eslint-enable react-refresh/only-export-components */

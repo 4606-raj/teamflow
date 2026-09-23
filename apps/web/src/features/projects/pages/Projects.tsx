@@ -10,6 +10,7 @@ import { projectApi } from '../api/projects.api';
 
 const statusFilters = ['All', 'Active', 'Inactive', 'Planning', 'In progress', 'Complete', 'Canceled'] as const;
 type StatusFilter = (typeof statusFilters)[number];
+const EMPTY_PROJECTS: Project[] = [];
 
 function formatStatus(status: Project['status']) {
     return status === 'INPROGRESS'
@@ -28,7 +29,7 @@ export default function Projects() {
         queryFn: projectApi.list,
     });
 
-    const projects = response?.data ?? [];
+    const projects = response?.data ?? EMPTY_PROJECTS;
 
     const filteredProjects = useMemo(() => {
         const normalizedQuery = query.trim().toLowerCase();
