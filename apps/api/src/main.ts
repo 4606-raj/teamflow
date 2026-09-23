@@ -13,7 +13,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Bind both local URL formats
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://teamflow-xi-prod.vercel.app'], // Bind both local URL formats
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
