@@ -14,6 +14,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { LookupsModule } from './modules/lookups/lookups.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LookupsModule } from './modules/lookups/lookups.module';
     InvitationsModule,
     ProjectsModule,
     LookupsModule,
+    TasksModule,
   ],
 
   controllers: [AppController],

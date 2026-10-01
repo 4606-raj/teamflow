@@ -70,9 +70,15 @@ model User {
   invitations    Invitation[]
   authIdentities AuthIdentity[]
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  projectUsers ProjectUser[]
+  assignedTasks Task[] @relation("TaskAssignee")
+  reportedTasks Task[] @relation("TaskReporter")
+  createdTasks  Task[] @relation("TaskCreator")
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  projectUsers   ProjectUser[]
+  taskActivities TaskActivity[]
+  comments       Comment[]
 
   @@map("users")
 }
@@ -128,7 +134,7 @@ model Invitation {
 }
 
 model AuthIdentity {
-  id             String           @id @default(cuid())
+  id                String        @id @default(cuid())
   provider          OAuthProvider @default(GOOGLE)
   providerAccountId String
   userId            String
@@ -168,6 +174,12 @@ model Project {
   tags      ProjectTag[]
   members   ProjectUser[]
 
+  taskActivities TaskActivity[]
+  comments       Comment[]
+
+  boards Board[]
+  tasks  Task[]
+
   createdAt DateTime @default(now())
 
   @@map("projects")
@@ -205,4 +217,117 @@ model ProjectUser {
 
   @@id([projectId, userId])
   @@map("project_user")
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  ticketNumber String
+  title        String
+  description  String?
+  dueDate      DateTime?
+  timeLogged   Float     @default(0)
+
+  projectId  String
+  userId     String?
+  reporterId String?
+  createdBy  String
+
+  // Self-relation for subtasks
+  parentId String?
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  assignee User? @relation("TaskAssignee", fields: [userId], references: [id], onDelete: Cascade)
+  reporter User? @relation("TaskReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  creator  User  @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  parent   Task?  @relation("TaskSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks Task[] @relation("TaskSubtasks")
+
+  activities TaskActivity[]
+  comments   Comment[]
+  boards     TaskBoard[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+model TaskActivity {
+  id     String @id @default(cuid())
+  taskId String
+  userId String
+
+  action   String
+  oldValue String?
+  newValue String?
+
+  createdAt DateTime @default(now())
+
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("task_activities")
+}
+
+model Comment {
+  id     String @id @default(cuid())
+  taskId String
+  userId String
+
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?
+
+  @@index([taskId])
+  @@index([userId])
+  @@map("comments")
+}
+
+model Board {
+  id        String @id @default(cuid())
+  projectId String
+
+  name     String
+  position Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   TaskBoard[]
+
+  @@index([projectId])
+  @@map("boards")
+}
+
+model TaskBoard {
+  id      String @id @default(cuid())
+  taskId  String
+  boardId String
+
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, boardId])
+  @@index([boardId, position])
+  @@map("task_board")
 }

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppLogger } from '../logger/logger.service';
+import { mapPrismaError } from '../prisma/prisma-error.handler';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -38,6 +39,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         message = res.message || message;
         error = res.error || error;
+      }
+    } else {
+      const prismaError = mapPrismaError(exception);
+
+      if (prismaError) {
+        ({ status, error, message } = prismaError);
       }
     }
 
