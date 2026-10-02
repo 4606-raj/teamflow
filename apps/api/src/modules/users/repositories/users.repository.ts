@@ -34,6 +34,22 @@ export class UsersRepository {
     });
   }
 
+  getAll() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        systemRole: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   create(data: CreateUserDto) {
     const user = this.prisma.user.create({
       data,

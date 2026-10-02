@@ -1,8 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { type CreateTaskRequest, taskCreateSchema, taskUpdateSchema, type UpdateTaskRequest } from '@teamflow/types'
 import { ZodValidationPipe } from '../auth/zod-validation.pipe';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
 	constructor(private readonly tasksService: TasksService) {}
@@ -18,8 +21,8 @@ export class TasksController {
 	}
 	
 	@Post('/')
-	create(@Body(new ZodValidationPipe(taskCreateSchema)) data: CreateTaskRequest) {
-		return this.tasksService.create(data);
+	create(@CurrentUser() user, @Body(new ZodValidationPipe(taskCreateSchema)) data: CreateTaskRequest) {
+		return this.tasksService.create(data, user.userId);
 	}
 
 	@Put('/:id')

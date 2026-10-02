@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { type Project } from '@teamflow/types';
-import { BriefcaseBusiness, CalendarDays, FolderKanban, Pencil, Plus, Search, Users } from 'lucide-react';
+import { BriefcaseBusiness, CalendarDays, FolderKanban, KanbanSquare, Pencil, Plus, Search, Users } from 'lucide-react';
 import { useAuthStore } from '@/features/auth';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@/shared/components/ui';
 import { DashboardShell } from '@/shared/layouts/DashboardShell';
@@ -107,7 +107,7 @@ export default function Projects() {
                         </Card>
                     ) : filteredProjects.length > 0 ? (
                         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                            {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} onEdit={() => navigate(`/projects/${project.id}/edit`)} />)}
+                            {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} onEdit={() => navigate(`/projects/${project.id}/edit`)} onOpenBoard={() => navigate(`/projects/${project.id}/kanban`)} />)}
                         </div>
                     ) : (
                         <Card>
@@ -126,7 +126,7 @@ export default function Projects() {
     );
 }
 
-function ProjectCard({ project, onEdit }: { project: Project; onEdit: () => void }) {
+function ProjectCard({ project, onEdit, onOpenBoard }: { project: Project; onEdit: () => void; onOpenBoard: () => void }) {
     const tasks = 0;
     const completedTasks = 0;
     const completion = tasks > 0 ? Math.round((completedTasks / tasks) * 100) : 0;
@@ -164,9 +164,15 @@ function ProjectCard({ project, onEdit }: { project: Project; onEdit: () => void
                     <span>{tasks > 0 ? `${completedTasks} of ${tasks} tasks` : 'Tasks unavailable'}</span>
                     <span className="flex items-center gap-1.5"><CalendarDays aria-hidden="true" className="size-3.5" />Date unavailable</span>
                 </div>
-                <div className="flex items-center gap-1.5 border-t pt-4 text-xs text-muted-foreground">
-                    <Users aria-hidden="true" className="size-3.5" />
-                    {project.members.length} {project.members.length === 1 ? 'member' : 'members'}
+                <div className="flex items-center justify-between gap-3 border-t pt-4">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Users aria-hidden="true" className="size-3.5" />
+                        {project.members.length} {project.members.length === 1 ? 'member' : 'members'}
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={onOpenBoard}>
+                        <KanbanSquare aria-hidden="true" />
+                        Open Board
+                    </Button>
                 </div>
             </CardContent>
         </Card>

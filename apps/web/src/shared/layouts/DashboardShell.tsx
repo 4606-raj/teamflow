@@ -20,7 +20,7 @@ import { useAuthStore } from '@/features/auth';
 
 const navigation = [
     { label: 'Overview', href: '/', icon: LayoutDashboard },
-    { label: 'My tasks', href: '/tasks', icon: CheckSquare },
+    { label: 'My tasks', href: '/kanban', icon: CheckSquare },
     { label: 'Projects', href: '/projects', icon: BriefcaseBusiness },
     { label: 'Team', href: '/team', icon: Users },
 ];

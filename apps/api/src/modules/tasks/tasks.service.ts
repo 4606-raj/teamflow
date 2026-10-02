@@ -15,8 +15,8 @@ export class TasksService {
 		return this.tasksRepo.getOne(taskId);
 	}
 	
-	async create(data: CreateTaskRequest) {
-		return this.tasksRepo.create(data);
+	async create(data: CreateTaskRequest, creatorId: string) {
+		return this.tasksRepo.create(data, creatorId);
 	}
 
 	async update(data: UpdateTaskRequest) {

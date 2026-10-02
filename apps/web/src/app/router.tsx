@@ -8,6 +8,7 @@ import { authRoutes } from "@/features/auth/routes";
 import { onboardingRoutes } from "@/features/onboarding/routes";
 import { dashboardRoutes } from "@/features/dashboard/routes";
 import { projectRoutes } from "@/features/projects/routes";
+import { kanbanRoutes } from "@/features/kanban/routes";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       ...dashboardRoutes,
       ...onboardingRoutes,
       ...projectRoutes,
+      ...kanbanRoutes,
     ],
   },
 ]);

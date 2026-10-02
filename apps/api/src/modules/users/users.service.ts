@@ -31,6 +31,11 @@ export class UsersService {
     return this.usersRepository.findById(id);
   }
 
+  async getAll() {
+    const users = await this.usersRepository.getAll();
+    return users.map((user) => new UserEntity(user));
+  }
+
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     // hash the refresh token before storing it in the DB
     const hash =

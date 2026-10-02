@@ -218,7 +218,11 @@ function ProjectForm({
       <FormField label="Project members" error={errors.members?.message}>
         <div className="rounded-xl border border-border/70 p-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Select value={memberId} onValueChange={(value) => setMemberId(value ?? "")}>
+            <Select
+              items={members.map((member) => ({ value: member.id, label: `${member.name} (${member.email})` }))}
+              value={memberId || null}
+              onValueChange={(value) => setMemberId(value ?? "")}
+            >
               <SelectTrigger className="w-full sm:min-w-0 sm:flex-1">
                 <SelectValue placeholder="Select a member" />
               </SelectTrigger>

@@ -13,13 +13,13 @@ export const taskCreateSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(5000, 'Task description is too long')
+    .max(20000, 'Task description is too long')
     .optional(),
   // Accepts a Date (from date pickers) or an ISO string (from JSON payloads)
   dueDate: z.coerce.date({ message: 'Please provide a valid due date' }).optional(),
   projectId: cuid('Please provide a valid project id'),
-  assigneeId: cuid('Please provide a valid assignee').optional(),
-  userId: cuid('Please provide a valid user id'),
+  // Assignee (Task.userId); omit for an unassigned task
+  userId: cuid('Please provide a valid user id').optional(),
   reporterId: cuid('Please provide a valid reporter').optional(),
   parentId: cuid('Please provide a valid parent task id').optional(),
   boardId: cuid('Please provide a valid board id').optional(),
@@ -39,11 +39,11 @@ export const taskUpdateSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(5000, 'Task description is too long')
+    .max(20000, 'Task description is too long')
     .optional(),
   // Accepts a Date (from date pickers) or an ISO string (from JSON payloads)
   dueDate: z.coerce.date({ message: 'Please provide a valid due date' }).optional(),
-  userId: cuid('Please provide a valid user id'),
+  userId: cuid('Please provide a valid user id').optional(),
   reporterId: cuid('Please provide a valid reporter').optional(),
   parentId: cuid('Please provide a valid parent task id').optional(),
   boardId: cuid('Please provide a valid board id').optional(),

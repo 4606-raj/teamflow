@@ -67,7 +67,7 @@ export class TasksRepository {
 		})
 	}
 	
-	async create(data: CreateTaskRequest) {
+	async create(data: CreateTaskRequest, creatorId: string) {
 		return this.prisma.task.create({
 			data: {
 				ticketNumber: '0',
@@ -76,9 +76,9 @@ export class TasksRepository {
 				dueDate: data.dueDate ?? null,
 				timeLogged: data.timeLogged ?? 0,
 				userId: data.userId,
-				reporterId: data.reporterId,
+				reporterId: data.reporterId ?? creatorId,
 				parentId: data.parentId,
-				createdBy: 'cmufwdyk40000mc9wmvtxqxnr',
+				createdBy: creatorId,
 				projectId: data.projectId,
 			}
 		})
