@@ -23,7 +23,6 @@ export const useAuthStore = create<AuthState>()(
             {
               user,
               accessToken,
-              isAuthenticated: true,
             },
             false,
             'auth/login',

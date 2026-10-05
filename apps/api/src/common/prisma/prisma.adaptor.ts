@@ -8,4 +8,7 @@ export const adapter = new PrismaMariaDb({
   password: process.env['DB_PASSWORD'],
   database: process.env['DB_NAME'],
   trace: true,
+  // MySQL 8.4 uses caching_sha2_password; after a server restart the first login
+  // needs the RSA public key, which the mariadb driver won't fetch by default.
+  allowPublicKeyRetrieval: true,
 });

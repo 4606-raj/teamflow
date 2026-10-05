@@ -17,7 +17,6 @@ const popupFeatures = {
 
 export function useOAuthPopup(provider: OAuthProvider) {
   const navigate = useNavigate();
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
   const logout = useAuthStore((state) => state.logout);
   const popupRef = useRef<Window | null>(null);
@@ -60,7 +59,7 @@ export function useOAuthPopup(provider: OAuthProvider) {
 
       try {
         const response = await authApi.refresh();
-        setAccessToken(response.data.accessToken);
+        useAuthStore.setState({ accessToken: response.data.accessToken });
 
         const user = await fetchCurrentUser();
         if (!user) {
@@ -80,7 +79,7 @@ export function useOAuthPopup(provider: OAuthProvider) {
 
     window.addEventListener('message', handleOAuthMessage);
     return () => window.removeEventListener('message', handleOAuthMessage);
-  }, [fetchCurrentUser, logout, navigate, provider, setAccessToken]);
+  }, [fetchCurrentUser, logout, navigate, provider]);
 
   return {
     openPopup,
