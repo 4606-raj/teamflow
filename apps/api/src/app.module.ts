@@ -15,6 +15,7 @@ import { InvitationsModule } from './modules/invitations/invitations.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { LookupsModule } from './modules/lookups/lookups.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
     ProjectsModule,
     LookupsModule,
     TasksModule,
+    CommentsModule,
   ],
 
   controllers: [AppController],

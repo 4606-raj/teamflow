@@ -24,6 +24,7 @@ export const taskCreateSchema = z.object({
   parentId: cuid('Please provide a valid parent task id').optional(),
   boardId: cuid('Please provide a valid board id').optional(),
   timeLogged: z.number().min(0, 'Time logged must be a positive number').optional(),
+  subtasks: z.array(z.string().regex(/^c[a-z0-9]{24}$/, 'Please provide a valid subtask id')).optional(),
 });
 
 export type CreateTaskInput = z.input<typeof taskCreateSchema>;

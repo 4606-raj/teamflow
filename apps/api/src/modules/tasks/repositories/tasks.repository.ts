@@ -78,6 +78,9 @@ export class TasksRepository {
 				userId: data.userId,
 				reporterId: data.reporterId ?? creatorId,
 				parentId: data.parentId,
+				subtasks: data.subtasks?.length
+					? { connect: data.subtasks.map((id) => ({ id })) }
+					: undefined,
 				createdBy: creatorId,
 				projectId: data.projectId,
 			}

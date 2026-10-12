@@ -174,9 +174,6 @@ model Project {
   tags      ProjectTag[]
   members   ProjectUser[]
 
-  taskActivities TaskActivity[]
-  comments       Comment[]
-
   boards Board[]
   tasks  Task[]
 
@@ -268,8 +265,6 @@ model TaskActivity {
 
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project   Project? @relation(fields: [projectId], references: [id])
-  projectId String?
 
   @@index([taskId])
   @@index([userId])
@@ -289,8 +284,6 @@ model Comment {
 
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project   Project? @relation(fields: [projectId], references: [id])
-  projectId String?
 
   @@index([taskId])
   @@index([userId])

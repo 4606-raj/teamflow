@@ -12,3 +12,6 @@ export * from '@/shared/components/ui/dialog';
 export * from '@/shared/components/ui/date-picker';
 
 export * from '@/shared/components/ui/markdown-editor';
+
+export * from '@/shared/components/ui/tabs';
+export * from '@/shared/components/ui/table';
