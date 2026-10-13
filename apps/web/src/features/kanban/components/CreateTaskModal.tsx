@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +28,8 @@ import { useAuthStore } from '@/features/auth/stores/auth.store';
 import { SubtasksField } from './SubtasksField';
 import { TaskActivityTabs } from './TaskActivityTabs';
 import { useTasks } from '../hooks/useTasks';
+import { useTask } from '../hooks/useTask';
+import { useUpdateTask } from '../hooks/useUpdateTask';
 import { useCreateTask } from '../hooks/useCreateTask';
 import { useProjectMembers } from '../hooks/useProjectMembers';
 
@@ -50,13 +53,33 @@ interface CreateTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId?: string;
+  /** When set, the modal edits this task instead of creating one. */
+  taskId?: string;
 }
 
-export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskModalProps) {
+export function CreateTaskModal({ open, onOpenChange, projectId: projectIdProp, taskId }: CreateTaskModalProps) {
+  const isEdit = !!taskId;
+  const { data: task, isLoading: taskLoading, isError: taskError } = useTask(taskId ?? null);
+  const projectId = task?.projectId ?? projectIdProp;
   const currentUserId = useAuthStore((state) => state.user?.id);
   const createTask = useCreateTask();
+  const updateTask = useUpdateTask(taskId ?? '');
+  const isPending = createTask.isPending || updateTask.isPending;
   const { data: tasks = [], isLoading: tasksLoading } = useTasks();
   const { options: userOptions, isLoading: usersLoading } = useProjectMembers(projectId);
+
+  const editValues = useMemo<FormInput | undefined>(
+    () =>
+      task && {
+        title: task.title,
+        description: task.description ?? '',
+        dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+        userId: task.userId ?? undefined,
+        reporterId: task.reporterId ?? undefined,
+        parentId: task.parentId ?? undefined,
+      },
+    [task],
+  );
 
   const {
     register,
@@ -67,6 +90,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskMod
     formState: { errors },
   } = useForm<FormInput, unknown, FormOutput>({
     resolver: zodResolver(formSchema),
+    values: editValues,
     defaultValues: { title: '', description: '', userId: undefined, reporterId: currentUserId },
   });
 
@@ -85,6 +109,18 @@ export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskMod
   };
 
   const onSubmit = async (values: FormOutput) => {
+    if (isEdit) {
+      try {
+        // Subtasks aren't editable here (hidden field), so they stay undefined.
+        await updateTask.mutateAsync(values);
+        toast.success('Task updated');
+        handleOpenChange(false);
+      } catch {
+        toast.error('Could not update the task. Please try again.');
+      }
+      return;
+    }
+
     if (!projectId) {
       toast.error('Open a project board to create a task.');
       return;
@@ -108,9 +144,13 @@ export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskMod
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="flex h-[90dvh] flex-col gap-5 sm:max-w-[70vw]">
         <DialogHeader>
-          <DialogTitle>New task</DialogTitle>
-          <DialogDescription>Add a task to this project's board.</DialogDescription>
+          <DialogTitle>{isEdit ? (task ? `${task.ticketNumber} · Edit task` : 'Edit task') : 'New task'}</DialogTitle>
+          <DialogDescription>
+            {isEdit ? 'Update the details of this task.' : "Add a task to this project's board."}
+          </DialogDescription>
         </DialogHeader>
+
+        {taskError && <p className="text-sm text-destructive">Failed to load task.</p>}
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col gap-5" noValidate>
           <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_18rem] lg:overflow-hidden">
@@ -141,6 +181,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskMod
                 />
               </FormField>
 
+              {!isEdit && (
               <FormField label="Subtasks" htmlFor="task-subtasks">
                 <Controller
                   control={control}
@@ -155,6 +196,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskMod
                   )}
                 />
               </FormField>
+              )}
 
               <TaskActivityTabs />
             </div>
@@ -248,8 +290,8 @@ export function CreateTaskModal({ open, onOpenChange, projectId }: CreateTaskMod
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={createTask.isPending}>
-              {createTask.isPending ? 'Creating...' : 'Create task'}
+            <Button type="submit" disabled={isPending || (isEdit && taskLoading)}>
+              {isEdit ? (isPending ? 'Saving...' : 'Save changes') : isPending ? 'Creating...' : 'Create task'}
             </Button>
           </DialogFooter>
         </form>

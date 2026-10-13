@@ -1,13 +1,6 @@
 // Placeholder data for the create-task modal until parent/subtask, comment and
 // activity APIs exist. Replace with real queries; shapes are kept minimal.
 
-export interface DummyTask {
-  id: string;
-  ticketNumber: string;
-  title: string;
-  status: 'Todo' | 'In Progress' | 'Done';
-}
-
 export interface DummyComment {
   id: string;
   author: string;
@@ -21,14 +14,6 @@ export interface DummyActivity {
   action: string;
   createdAt: string;
 }
-
-export const dummyTasks: DummyTask[] = [
-  { id: 'task-1', ticketNumber: 'TF-101', title: 'Create authentication UI', status: 'Todo' },
-  { id: 'task-2', ticketNumber: 'TF-102', title: 'Create project dashboard', status: 'Todo' },
-  { id: 'task-3', ticketNumber: 'TF-103', title: 'Implement project API', status: 'In Progress' },
-  { id: 'task-4', ticketNumber: 'TF-104', title: 'Setup authentication', status: 'Done' },
-  { id: 'task-5', ticketNumber: 'TF-105', title: 'Write API documentation', status: 'Todo' },
-];
 
 export const dummyComments: DummyComment[] = [
   { id: 'c-1', author: 'Howard Stanley', createdAt: '2 hours ago', body: 'Let\'s split this into smaller subtasks so it can be reviewed in parts.' },

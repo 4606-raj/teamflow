@@ -14,9 +14,10 @@ import type { KanbanColumnData } from '../types/kanban.types';
 
 interface KanbanColumnProps {
   column: KanbanColumnData;
+  onOpenTask?: (taskId: string) => void;
 }
 
-export function KanbanColumn({ column }: KanbanColumnProps) {
+export function KanbanColumn({ column, onOpenTask }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   const isEmpty = column.tasks.length === 0;
@@ -40,7 +41,7 @@ export function KanbanColumn({ column }: KanbanColumnProps) {
           strategy={verticalListSortingStrategy}
         >
           {column.tasks.map((task) => (
-            <KanbanTaskCard key={task.id} task={task} />
+            <KanbanTaskCard key={task.id} task={task} onOpen={onOpenTask} />
           ))}
         </SortableContext>
 

@@ -38,7 +38,7 @@ export function KanbanPage() {
           </Button>
         </section>
 
-        <KanbanBoard />
+        <KanbanBoard projectId={projectId} />
 
         <CreateTaskModal
           open={isCreateOpen}

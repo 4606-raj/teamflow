@@ -93,14 +93,13 @@ export class TasksRepository {
 				id: data.id,
 			},
 			data: {
-				ticketNumber: '0',
 				title: data.title,
 				description: data.description,
 				dueDate: data.dueDate ?? null,
-				timeLogged: data.timeLogged ?? 0,
-				userId: data.userId,
+				timeLogged: data.timeLogged,
+				userId: data.userId ?? null,
 				reporterId: data.reporterId,
-				parentId: data.parentId,
+				parentId: data.parentId ?? null,
 			}
 		})
 	}

@@ -42,8 +42,10 @@ export function KanbanTaskCardView({
 
 export const KanbanTaskCard = memo(function KanbanTaskCard({
   task,
+  onOpen,
 }: {
   task: KanbanTask;
+  onOpen?: (taskId: string) => void;
 }) {
   const {
     attributes,
@@ -59,6 +61,8 @@ export const KanbanTaskCard = memo(function KanbanTaskCard({
       ref={setNodeRef}
       task={task}
       isDragging={isDragging}
+      // MouseSensor needs 5px of movement to drag, so a plain click still fires.
+      onClick={() => onOpen?.(task.id)}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       {...attributes}
       {...listeners}
