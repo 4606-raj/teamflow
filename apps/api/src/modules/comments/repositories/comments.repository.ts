@@ -6,18 +6,32 @@ import { type CreateCommentRequest, type UpdateCommentRequest } from '@teamflow/
 export class CommentsRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	getAll() {
-		return this.prisma.comment.findMany();
+	getAll(taskId: string) {
+		return this.prisma.comment.findMany({
+			where: { taskId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				id: true,
+				content: true,
+				taskId: true,
+				userId: true,
+				createdAt: true,
+				updatedAt: true,
+				user: { select: { id: true, firstName: true, lastName: true } },
+			},
+		});
 	}
-	
+
+	findById(id: string) {
+		return this.prisma.comment.findUnique({ where: { id } });
+	}
+
 	async create(data: CreateCommentRequest, userId: string) {
 		return this.prisma.comment.create({
 			data: {
 				content: data.content,
 				taskId: data.taskId,
 				userId,
-				createdAt: new Date(),
-				updatedAt: new Date(),
 			},
 		});
 	}
@@ -25,7 +39,7 @@ export class CommentsRepository {
 	async update(data: UpdateCommentRequest) {
 		return this.prisma.comment.update({
 			where: { id: data.id },
-			data: { content: data.content, updatedAt: new Date() },
+			data: { content: data.content },
 		});
 	}
 

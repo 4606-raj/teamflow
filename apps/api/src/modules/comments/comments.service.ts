@@ -6,9 +6,8 @@ import { type CreateCommentRequest, type UpdateCommentRequest } from '@teamflow/
 export class CommentsService {
     constructor(private readonly commentsRepo: CommentsRepository) {}
 
-    getAll() {
-        // This is a placeholder for the actual implementation
-        return this.commentsRepo.getAll();
+    getAll(taskId: string) {
+        return this.commentsRepo.getAll(taskId);
     }
     
     create(data: CreateCommentRequest, userId: string) {

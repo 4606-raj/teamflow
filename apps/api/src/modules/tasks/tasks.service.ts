@@ -11,7 +11,6 @@ export class TasksService {
 	}
 
 	async getOne(taskId: string) {
-		l(taskId)
 		return this.tasksRepo.getOne(taskId);
 	}
 	

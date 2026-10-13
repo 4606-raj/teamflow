@@ -27,10 +27,7 @@ import { useAuthStore } from '@/features/auth/stores/auth.store';
 
 import { SubtasksField } from './SubtasksField';
 import { TaskActivityTabs } from './TaskActivityTabs';
-import { useTasks } from '../hooks/useTasks';
-import { useTask } from '../hooks/useTask';
-import { useUpdateTask } from '../hooks/useUpdateTask';
-import { useCreateTask } from '../hooks/useCreateTask';
+import { useTasks, useTask, useUpdateTask, useCreateTask } from '../hooks/useTasks';
 import { useProjectMembers } from '../hooks/useProjectMembers';
 
 // The modal collects these; the project id comes from the route.
@@ -198,7 +195,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId: projectIdProp, 
               </FormField>
               )}
 
-              <TaskActivityTabs />
+              <TaskActivityTabs taskId={taskId ?? null} />
             </div>
 
             <aside className="space-y-5 lg:-m-1 lg:overflow-y-auto lg:border-l lg:p-1 lg:pl-6">

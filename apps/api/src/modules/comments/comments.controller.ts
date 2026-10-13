@@ -11,8 +11,8 @@ export class CommentsController {
     constructor(private readonly commentsService: CommentsService) {}
 
     @Get('/')
-    getAll() {
-        return this.commentsService.getAll();
+    getAll(@Param('taskId') taskId: string) {
+        return this.commentsService.getAll(taskId);
     }
 
     @Post('/')
