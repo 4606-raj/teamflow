@@ -19,7 +19,23 @@ export class TasksRepository {
 				parentId: true,
 				createdBy: true,
 				projectId: true,
+				assignee: {
+					select: {
+						firstName: true,
+						lastName: true,
+					},
+				},
+				_count: {
+					select: { subtasks: true },
+				},
 			}
+		});
+	}
+
+	findProjectId(taskId: string) {
+		return this.prisma.task.findUnique({
+			where: { id: taskId },
+			select: { projectId: true },
 		});
 	}
 
@@ -67,7 +83,11 @@ export class TasksRepository {
 		})
 	}
 	
-	async create(data: CreateTaskRequest, creatorId: string) {
+	async create(
+		data: CreateTaskRequest,
+		creatorId: string,
+		placement: { boardId: string; position: number },
+	) {
 		return this.prisma.task.create({
 			data: {
 				ticketNumber: '0',
@@ -83,6 +103,9 @@ export class TasksRepository {
 					: undefined,
 				createdBy: creatorId,
 				projectId: data.projectId,
+				boards: {
+					create: { boardId: placement.boardId, position: placement.position },
+				},
 			}
 		})
 	}

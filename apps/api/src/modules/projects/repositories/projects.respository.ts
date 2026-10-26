@@ -2,6 +2,7 @@ import { PrismaService } from '@/common/prisma/prisma.service';
 import { type projectCreateInput } from '../dto/create-project.dto';
 import { Injectable } from "@nestjs/common";
 import { projectResponseSelect } from '../types/projects.types';
+import { DEFAULT_BOARD_NAMES } from '@teamflow/types';
 
 @Injectable()
 export class ProjectRepository {
@@ -27,6 +28,10 @@ export class ProjectRepository {
 					description: data.description,
 					status: data.status,
 					color: data.color,
+
+					boards: {
+						create: DEFAULT_BOARD_NAMES.map((name, position) => ({ name, position })),
+					},
 
 					techStack: data.techStack?.length ? {
 						create: data.techStack.map(technology => ({

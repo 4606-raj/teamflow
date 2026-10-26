@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -15,29 +16,42 @@ import type { KanbanColumnData } from '../types/kanban.types';
 interface KanbanColumnProps {
   column: KanbanColumnData;
   onOpenTask?: (taskId: string) => void;
+  onRename?: (columnId: string, name: string) => void;
+  onDelete?: (columnId: string) => void;
 }
 
-export function KanbanColumn({ column, onOpenTask }: KanbanColumnProps) {
+export const KanbanColumn = memo(function KanbanColumn({
+  column,
+  onOpenTask,
+  onRename,
+  onDelete,
+}: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   const isEmpty = column.tasks.length === 0;
+  const taskIds = useMemo(
+    () => column.tasks.map((task) => task.id),
+    [column.tasks],
+  );
 
   return (
-    <div className="flex w-[85vw] shrink-0 snap-start flex-col gap-3 sm:w-80">
+    <div className="flex h-full w-[85vw] shrink-0 snap-start flex-col gap-3 sm:w-80">
       <KanbanColumnHeader
         name={column.name}
         taskCount={column.tasks.length}
+        onRename={onRename && ((name) => onRename(column.id, name))}
+        onDelete={onDelete && (() => onDelete(column.id))}
       />
 
       <Card
         ref={setNodeRef}
         className={cn(
-          'flex min-h-32 flex-1 flex-col gap-2 bg-muted/40 p-2 transition-colors',
+          'flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-muted/40 p-2 transition-colors',
           isOver ? 'bg-muted/70' : undefined,
         )}
       >
         <SortableContext
-          items={column.tasks.map((task) => task.id)}
+          items={taskIds}
           strategy={verticalListSortingStrategy}
         >
           {column.tasks.map((task) => (
@@ -58,4 +72,4 @@ export function KanbanColumn({ column, onOpenTask }: KanbanColumnProps) {
       </Card>
     </div>
   );
-}
+});

@@ -53,3 +53,12 @@ export const taskUpdateSchema = z.object({
 
 export type UpdateTaskInput = z.input<typeof taskUpdateSchema>;
 export type UpdateTaskRequest = z.infer<typeof taskUpdateSchema>;
+
+// Moves a task to `position` (0-based) within `boardId`; the task id comes from the route.
+export const taskMoveSchema = z.object({
+  boardId: cuid('Please provide a valid board id'),
+  position: z.number().int('Position must be a whole number').min(0).max(10000),
+});
+
+export type MoveTaskInput = z.input<typeof taskMoveSchema>;
+export type MoveTaskRequest = z.infer<typeof taskMoveSchema>;

@@ -4,6 +4,7 @@ export * from './tasks.schema.ts';
 export * from './organization.schema.ts'
 export * from './invitation.schema.ts'
 export * from './comment.schema.ts'
+export * from './board.schema.ts'
 
 export * from './constants/index.ts'
 

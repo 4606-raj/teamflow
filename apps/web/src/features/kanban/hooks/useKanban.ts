@@ -1,50 +1,63 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-import type { TaskListItem } from '../api/tasks.api';
-import { useTasks } from './useTasks';
+import type { BoardWithTasks } from '../api/boards.api';
+import { useBoards } from './useBoards';
+import { useMoveTask } from './useTasks';
 import type {
   KanbanBoardData,
   KanbanTaskMove,
 } from '../types/kanban.types';
 
-// Tasks have no status/board assignment in the API yet, so every top-level
-// task lands in the first column until a move-task endpoint exists.
-const emptyColumns = (): KanbanBoardData['columns'] => [
-  { id: 'todo', name: 'Todo', tasks: [] },
-  { id: 'in-progress', name: 'In Progress', tasks: [] },
-  { id: 'done', name: 'Done', tasks: [] },
-];
-
 function buildBoard(
-  tasks: TaskListItem[] | undefined,
+  boards: BoardWithTasks[] | undefined,
   projectId?: string,
 ): KanbanBoardData {
-  const columns = emptyColumns();
-  columns[0].tasks = (tasks ?? [])
-    .filter((t) => !t.parentId && (!projectId || t.projectId === projectId))
-    .map(({ id, ticketNumber, title }) => ({ id, ticketNumber, title }));
-  return { id: 'board-1', columns };
+  return {
+    id: projectId ?? 'no-project',
+    columns: (boards ?? []).map((board) => ({
+      id: board.id,
+      name: board.name,
+      tasks: board.tasks.map((t) => ({
+        id: t.id,
+        ticketNumber: t.ticketNumber,
+        title: t.title,
+        dueDate: t.dueDate,
+        assigneeName: t.assignee
+          ? [t.assignee.firstName, t.assignee.lastName].filter(Boolean).join(' ') || null
+          : null,
+        isChild: !!t.parentId,
+        subtaskCount: t._count.subtasks,
+      })),
+    })),
+  };
 }
 
 /**
- * Board data + persistence. Tasks come from the tasks API; column moves are
- * local only for now. Drag state lives in useKanbanDnd, not here.
+ * Board data + persistence. Columns and their tasks come from the boards API;
+ * moves are sent to the API on drop. Drag state lives in useKanbanDnd, not here.
  */
 export function useKanban(projectId?: string) {
-  const { data: tasks, isLoading, isError } = useTasks();
+  const { data: boards, isLoading, isError } = useBoards(projectId);
   const [local, setLocal] = useState<{
-    tasks: TaskListItem[] | undefined;
+    boards: BoardWithTasks[] | undefined;
     projectId?: string;
     board: KanbanBoardData;
   } | null>(null);
 
+  // Memoized so card props keep their identity between renders; a fresh
+  // board every render would defeat memo() on every card during a drag.
+  const sourceBoard = useMemo(
+    () => buildBoard(boards, projectId),
+    [boards, projectId],
+  );
+
   const sourceChanged =
-    !local || local.tasks !== tasks || local.projectId !== projectId;
+    !local || local.boards !== boards || local.projectId !== projectId;
 
   // Rebuild from server data whenever it (or the project) changes; drags
   // after that update `local` until the next refetch.
   const board: KanbanBoardData = sourceChanged
-    ? buildBoard(tasks, projectId)
+    ? sourceBoard
     : local.board;
 
   const setBoard = useCallback(
@@ -52,21 +65,29 @@ export function useKanban(projectId?: string) {
       setLocal((prev) => {
         const base = prev && !sourceChanged ? prev.board : board;
         return {
-          tasks,
+          boards,
           projectId,
           board: typeof next === 'function' ? next(base) : next,
         };
       });
     },
-    [tasks, projectId, sourceChanged, board],
+    [boards, projectId, sourceChanged, board],
   );
 
+  const { mutate: persistMove } = useMoveTask(projectId);
+
   // Called once per completed drag that changed a task's column or position.
-  // `board` already reflects the move (optimistic); on API failure, restore it.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const moveTask = useCallback((_move: KanbanTaskMove) => {
-    // TODO: call move-task API here.
-  }, []);
+  // `board` already reflects the move (optimistic); a failed request refetches
+  // the boards, which resets it to the server state.
+  const moveTask = useCallback(
+    (move: KanbanTaskMove) =>
+      persistMove({
+        taskId: move.taskId,
+        boardId: move.toColumnId,
+        position: move.toIndex,
+      }),
+    [persistMove],
+  );
 
   return { board, setBoard, moveTask, isLoading, isError };
 }

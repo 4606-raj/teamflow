@@ -15,18 +15,12 @@ export function KanbanPage() {
 
   return (
     <DashboardShell>
-      <div className="mx-auto w-full max-w-7xl space-y-8 p-4 sm:p-6 lg:p-8">
-        <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              {projectId ? 'Project' : 'Workspace'}
-            </p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
+      <div className="mx-auto w-full max-w-8xl space-y-4 p-4 sm:p-6">
+        <section className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
+            <h1 className="text-2xl font-semibold tracking-tight">
               Tasks Board
             </h1>
-            <p className="mt-2 text-muted-foreground">
-              Manage your tasks and workflow efficiently.
-            </p>
           </div>
           <Button
             onClick={() => setIsCreateOpen(true)}

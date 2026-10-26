@@ -16,6 +16,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { LookupsModule } from './modules/lookups/lookups.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { BoardsModule } from './modules/boards/boards.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CommentsModule } from './modules/comments/comments.module';
     LookupsModule,
     TasksModule,
     CommentsModule,
+    BoardsModule,
   ],
 
   controllers: [AppController],

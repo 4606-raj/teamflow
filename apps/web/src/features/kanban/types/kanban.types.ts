@@ -2,6 +2,10 @@ export interface KanbanTask {
   id: string;
   ticketNumber: string;
   title: string;
+  dueDate: string | null;
+  assigneeName: string | null;
+  isChild: boolean;
+  subtaskCount: number;
 }
 
 export interface KanbanColumnData {

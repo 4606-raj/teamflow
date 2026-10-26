@@ -45,6 +45,9 @@ export function useKanbanDnd({
   // it was when the drag started (to revert on cancel and to diff on drop).
   const boardRef = useRef(board);
   const snapshotRef = useRef<KanbanBoardData | null>(null);
+  // Last droppable the pointer was over, so the gap between columns keeps the
+  // previous target instead of snapping to whichever card is "closest".
+  const lastOverIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     boardRef.current = board;
@@ -66,40 +69,20 @@ export function useKanbanDnd({
     const pointerHits = pointerWithin(args);
 
     if (pointerHits.length === 0) {
+      if (args.pointerCoordinates) {
+        return lastOverIdRef.current ? [{ id: lastOverIdRef.current }] : [];
+      }
       return closestCorners(args);
     }
 
-    const current = boardRef.current;
-    const taskHit = pointerHits.find((hit) =>
-      findColumnByTaskId(current, String(hit.id)),
-    );
-
-    if (taskHit) {
-      return [taskHit];
-    }
-
-    // Pointer is over a column but not over a card (gap / empty space).
-    const column = current.columns.find(
-      (c) => c.id === String(pointerHits[0].id),
-    );
-
-    if (!column || column.tasks.length === 0) {
-      return pointerHits.slice(0, 1);
-    }
-
-    const taskIds = new Set(column.tasks.map((t) => t.id));
-    const closest = closestCenter({
-      ...args,
-      droppableContainers: args.droppableContainers.filter((container) =>
-        taskIds.has(String(container.id)),
-      ),
-    });
-
-    return closest.length > 0 ? closest : pointerHits.slice(0, 1);
+    const result = resolvePointerHits(boardRef.current, args, pointerHits);
+    lastOverIdRef.current = result[0] ? String(result[0].id) : null;
+    return result;
   }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     snapshotRef.current = boardRef.current;
+    lastOverIdRef.current = null;
     setActiveTaskId(String(event.active.id));
   };
 
@@ -214,4 +197,37 @@ function taskLabel(board: KanbanBoardData, taskId: string) {
 
 function columnLabel(board: KanbanBoardData, id: string) {
   return `column ${findColumnByAnyId(board, id)?.name ?? ''}`.trim();
+}
+
+function resolvePointerHits(
+  current: KanbanBoardData,
+  args: Parameters<CollisionDetection>[0],
+  pointerHits: ReturnType<CollisionDetection>,
+) {
+  const taskHit = pointerHits.find((hit) =>
+    findColumnByTaskId(current, String(hit.id)),
+  );
+
+  if (taskHit) {
+    return [taskHit];
+  }
+
+  // Pointer is over a column but not over a card (gap / empty space).
+  const column = current.columns.find(
+    (c) => c.id === String(pointerHits[0].id),
+  );
+
+  if (!column || column.tasks.length === 0) {
+    return pointerHits.slice(0, 1);
+  }
+
+  const taskIds = new Set(column.tasks.map((t) => t.id));
+  const closest = closestCenter({
+    ...args,
+    droppableContainers: args.droppableContainers.filter((container) =>
+      taskIds.has(String(container.id)),
+    ),
+  });
+
+  return closest.length > 0 ? closest : pointerHits.slice(0, 1);
 }

@@ -1,5 +1,9 @@
 import { api } from '@/shared/api/api';
-import type { CreateTaskInput, UpdateTaskInput } from '@teamflow/types';
+import type {
+  CreateTaskInput,
+  MoveTaskInput,
+  UpdateTaskInput,
+} from '@teamflow/types';
 import type { AxiosResponse } from 'axios';
 
 export interface TaskListItem {
@@ -8,9 +12,13 @@ export interface TaskListItem {
   title: string;
   projectId: string;
   parentId: string | null;
+  dueDate: string | null;
+  assignee: { firstName: string | null; lastName: string | null } | null;
+  _count: { subtasks: number };
 }
 
-export interface TaskDetail extends TaskListItem {
+export interface TaskDetail
+  extends Omit<TaskListItem, 'assignee' | '_count'> {
   description: string | null;
   dueDate: string | null;
   timeLogged: number;
@@ -36,6 +44,13 @@ export const tasksApi = {
     data: Omit<UpdateTaskInput, 'id'>,
   ): Promise<AxiosResponse<{ id: string }>> {
     return api.put(`/tasks/${id}`, { ...data, id });
+  },
+
+  move(
+    id: string,
+    data: MoveTaskInput,
+  ): Promise<AxiosResponse<{ id: string; boardId: string; position: number }>> {
+    return api.put(`/tasks/${id}/move`, data);
   },
 
   create(data: CreateTaskInput): Promise<AxiosResponse<{ id: string }>> {

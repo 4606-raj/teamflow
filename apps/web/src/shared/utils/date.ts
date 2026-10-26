@@ -46,3 +46,12 @@ export function elapsedSince(
   if (!start || !end) return null
   return Math.max(0, diffByUnit[unit](end, start))
 }
+
+/** True when `value` is a valid date before the start of today. */
+export function isPastDue(value: DateInput): boolean {
+  const date = toDate(value)
+  if (!date) return false
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  return date < startOfToday
+}

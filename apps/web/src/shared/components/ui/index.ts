@@ -15,3 +15,5 @@ export * from '@/shared/components/ui/markdown-editor';
 
 export * from '@/shared/components/ui/tabs';
 export * from '@/shared/components/ui/table';
+
+export * from '@/shared/components/ui/tooltip';
