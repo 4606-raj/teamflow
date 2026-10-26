@@ -29,6 +29,7 @@ import { SubtasksField } from './SubtasksField';
 import { TaskActivityTabs } from './TaskActivityTabs';
 import { useTasks, useTask, useUpdateTask, useCreateTask } from '../hooks/useTasks';
 import { useProjectMembers } from '../hooks/useProjectMembers';
+import { useBoards } from '../hooks/useBoards';
 
 // The modal collects these; the project id comes from the route.
 // userId is the assignee (Task.userId in the schema); reporterId defaults to the current user.
@@ -40,6 +41,7 @@ const formSchema = taskCreateSchema.pick({
   reporterId: true,
   parentId: true,
   subtasks: true,
+  boardId: true,
 });
 type FormInput = z.input<typeof formSchema>;
 type FormOutput = z.output<typeof formSchema>;
@@ -64,6 +66,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId: projectIdProp, 
   const isPending = createTask.isPending || updateTask.isPending;
   const { data: tasks = [], isLoading: tasksLoading } = useTasks();
   const { options: userOptions, isLoading: usersLoading } = useProjectMembers(projectId);
+  const statusOptions = useBoards(projectId)?.data?.map((board) => ({ value: board.id, label: board.name })) ?? [];
 
   const editValues = useMemo<FormInput | undefined>(
     () =>
@@ -71,9 +74,10 @@ export function CreateTaskModal({ open, onOpenChange, projectId: projectIdProp, 
         title: task.title,
         description: task.description ?? '',
         dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-        userId: task.userId ?? undefined,
-        reporterId: task.reporterId ?? undefined,
+        userId: task.assignee?.id,
+        reporterId: task.reporter?.id,
         parentId: task.parentId ?? undefined,
+        boardId: task.boardId ?? undefined,
       },
     [task],
   );
@@ -231,6 +235,27 @@ export function CreateTaskModal({ open, onOpenChange, projectId: projectIdProp, 
                       </SelectTrigger>
                       <SelectContent>
                         {userOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </FormField>
+
+              <FormField label="Status" htmlFor="task-status" error={errors.boardId?.message}>
+                <Controller
+                  control={control}
+                  name="boardId"
+                  render={({ field }) => (
+                    <Select items={statusOptions} value={field.value || null} onValueChange={(value) => field.onChange(value ?? undefined)}>
+                      <SelectTrigger id="task-status" className="w-full data-[size=default]:h-11" aria-invalid={Boolean(errors.boardId)}>
+                        <SelectValue placeholder={usersLoading ? 'Loading...' : 'Select status'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>

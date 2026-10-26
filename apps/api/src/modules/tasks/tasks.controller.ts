@@ -35,7 +35,7 @@ export class TasksController {
 	}
 
 	@Put('/:id')
-	async update(@Body(new ZodValidationPipe(taskUpdateSchema)) data: UpdateTaskRequest) {
-		return this.tasksService.update(data);
+	async update(@CurrentUser() user, @Body(new ZodValidationPipe(taskUpdateSchema)) data: UpdateTaskRequest) {
+		return this.tasksService.update(data, user.userId);
 	}
 }

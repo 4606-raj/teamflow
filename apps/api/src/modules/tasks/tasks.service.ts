@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from './repositories/tasks.repository';
 import { UpdateTaskRequest, type CreateTaskRequest, type MoveTaskRequest } from '@teamflow/types'
 import { BoardsService } from '../boards/boards.service';
+import { TaskMapper } from './mappers/task-response.mapper';
 
 @Injectable()
 export class TasksService {
@@ -11,11 +12,17 @@ export class TasksService {
 	) {}
 
 	async getAll() {
-		return this.tasksRepo.getAll();
+		return TaskMapper.toListItems(await this.tasksRepo.getAll());
 	}
 
 	async getOne(taskId: string) {
-		return this.tasksRepo.getOne(taskId);
+		const task = await this.tasksRepo.getOne(taskId);
+
+		if (!task) {
+			throw new NotFoundException('Task not found');
+		}
+
+		return TaskMapper.toDetail(task);
 	}
 	
 	async create(data: CreateTaskRequest, creatorId: string) {
@@ -28,7 +35,21 @@ export class TasksService {
 		return this.tasksRepo.create(data, creatorId, placement);
 	}
 
-	async update(data: UpdateTaskRequest) {
+	async update(data: UpdateTaskRequest, userId: string) {
+		if (data.boardId) {
+			const task = await this.tasksRepo.findProjectId(data.id);
+
+			if (!task) {
+				throw new NotFoundException('Task not found');
+			}
+
+			// Only move when the board actually changes, otherwise a plain edit would reorder the task.
+			if (!task.boards.some((b) => b.boardId === data.boardId)) {
+				// Position past the end: moveTask clamps it to the last slot of the target board.
+				await this.move(data.id, { boardId: data.boardId, position: Number.MAX_SAFE_INTEGER }, userId);
+			}
+		}
+
 		return this.tasksRepo.update(data);
 	}
 

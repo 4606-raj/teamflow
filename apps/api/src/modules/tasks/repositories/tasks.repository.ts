@@ -1,88 +1,30 @@
 import { PrismaService } from "@/common/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { UpdateTaskRequest, type CreateTaskRequest } from '@teamflow/types'
+import { taskDetailSelect, taskListSelect } from '../types/tasks.types';
 
 @Injectable()
 export class TasksRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async getAll() {
-		return this.prisma.task.findMany({
-			select: {
-				id: true,
-				ticketNumber: true,
-				title: true,
-				dueDate: true,
-				timeLogged: true,
-				userId: true,
-				reporterId: true,
-				parentId: true,
-				createdBy: true,
-				projectId: true,
-				assignee: {
-					select: {
-						firstName: true,
-						lastName: true,
-					},
-				},
-				_count: {
-					select: { subtasks: true },
-				},
-			}
-		});
+		return this.prisma.task.findMany({ select: taskListSelect });
 	}
 
 	findProjectId(taskId: string) {
 		return this.prisma.task.findUnique({
 			where: { id: taskId },
-			select: { projectId: true },
+			select: { projectId: true, boards: { select: { boardId: true } } },
 		});
 	}
 
 	async getOne(taskId: string) {
 		return this.prisma.task.findUnique({
-			where: {
-				id: taskId,
-			},
-			select: {
-				id: true,
-				ticketNumber: true,
-				title: true,
-				description: true,
-				dueDate: true,
-				timeLogged: true,
-				userId: true,
-				reporterId: true,
-				parentId: true,
-				createdBy: true,
-				projectId: true,
-				assignee: {
-					select: {
-						id: true,
-						email: true,
-					}
-				},
-				reporter: {
-					select: {
-						id: true,
-						email: true,
-					}
-				},
-				parent: {
-					select: {
-						id: true,
-						title: true,
-					}
-				},
-				project: {
-					select: {
-						name: true,
-					}
-				}
-			}
-		})
+			where: { id: taskId },
+			select: taskDetailSelect,
+		});
 	}
-	
+
 	async create(
 		data: CreateTaskRequest,
 		creatorId: string,

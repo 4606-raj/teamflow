@@ -62,3 +62,40 @@ export const taskMoveSchema = z.object({
 
 export type MoveTaskInput = z.input<typeof taskMoveSchema>;
 export type MoveTaskRequest = z.infer<typeof taskMoveSchema>;
+
+
+export interface TaskPerson {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+}
+
+// Card/list shape: board cards and parent/subtask pickers.
+export interface TaskListItem {
+  id: string;
+  ticketNumber: string;
+  title: string;
+  projectId: string;
+  parentId: string | null;
+  dueDate: string | null;
+  assignee: TaskPerson | null;
+  subtaskCount: number;
+}
+
+export interface TaskDetail {
+  id: string;
+  ticketNumber: string;
+  title: string;
+  description: string | null;
+  dueDate: string | null;
+  timeLogged: number;
+  projectId: string;
+  projectName: string;
+  boardId: string | null;
+  assignee: TaskPerson | null;
+  reporter: TaskPerson | null;
+  parentId: string | null;
+  parent: { id: string; title: string } | null;
+  createdBy: string;
+}

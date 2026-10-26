@@ -11,6 +11,7 @@ import {
 	type UpdateBoardRequest,
 } from '@teamflow/types';
 import { BoardsRepository } from './repositories/boards.repository';
+import { TaskMapper } from '../tasks/mappers/task-response.mapper';
 
 // Project roles allowed to add, rename or delete boards. Every member can read.
 const MANAGE_ROLES: readonly string[] = ['Maintainer', 'Admin'];
@@ -31,7 +32,7 @@ export class BoardsService {
 			id: board.id,
 			name: board.name,
 			position: board.position,
-			tasks: board.tasks.map(({ task }) => task),
+			tasks: board.tasks.map(({ task }) => TaskMapper.toListItem(task)),
 		}));
 	}
 

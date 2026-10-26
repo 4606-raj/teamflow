@@ -1,24 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { DEFAULT_BOARD_NAMES } from '@teamflow/types';
-
-const taskCardSelect = {
-	id: true,
-	ticketNumber: true,
-	title: true,
-	projectId: true,
-	parentId: true,
-	dueDate: true,
-	assignee: {
-		select: {
-			firstName: true,
-			lastName: true,
-		},
-	},
-	_count: {
-		select: { subtasks: true },
-	},
-} as const;
+import { taskListSelect } from '@/modules/tasks/types/tasks.types';
 
 @Injectable()
 export class BoardsRepository {
@@ -106,7 +89,7 @@ export class BoardsRepository {
 				position: true,
 				tasks: {
 					orderBy: { position: 'asc' },
-					select: { task: { select: taskCardSelect } },
+					select: { task: { select: taskListSelect } },
 				},
 			},
 		});

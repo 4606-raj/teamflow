@@ -15,7 +15,7 @@ import {
   TableRow,
 } from '@/shared/components/ui';
 
-import type { TaskListItem } from '../api/tasks.api';
+import type { TaskListItem } from '@teamflow/types';
 
 interface SubtasksFieldProps {
   id?: string;

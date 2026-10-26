@@ -1,15 +1,11 @@
 import { api } from '@/shared/api/api';
-import type { CreateBoardInput, UpdateBoardInput } from '@teamflow/types';
+import type {
+  BoardSummary,
+  BoardWithTasks,
+  CreateBoardInput,
+  UpdateBoardInput,
+} from '@teamflow/types';
 import type { AxiosResponse } from 'axios';
-
-import type { TaskListItem } from './tasks.api';
-
-export interface BoardWithTasks {
-  id: string;
-  name: string;
-  position: number;
-  tasks: TaskListItem[];
-}
 
 export const boardsApi = {
   list(projectId: string): Promise<AxiosResponse<BoardWithTasks[]>> {
@@ -26,7 +22,7 @@ export const boardsApi = {
   rename(
     boardId: string,
     data: UpdateBoardInput,
-  ): Promise<AxiosResponse<Omit<BoardWithTasks, 'tasks'>>> {
+  ): Promise<AxiosResponse<BoardSummary>> {
     return api.patch(`/boards/${boardId}`, data);
   },
 

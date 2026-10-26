@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import type { BoardWithTasks } from '../api/boards.api';
+import type { BoardWithTasks } from '@teamflow/types';
 import { useBoards } from './useBoards';
 import { useMoveTask } from './useTasks';
 import type {
@@ -26,7 +26,7 @@ function buildBoard(
           ? [t.assignee.firstName, t.assignee.lastName].filter(Boolean).join(' ') || null
           : null,
         isChild: !!t.parentId,
-        subtaskCount: t._count.subtasks,
+        subtaskCount: t.subtaskCount,
       })),
     })),
   };
